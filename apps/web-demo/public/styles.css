@@ -272,13 +272,23 @@ button:disabled {
 }
 
 .toggle,
-.range {
+.range,
+.select {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
   padding: 0 10px;
   color: #f3f1e8;
+}
+
+.select select {
+  height: 34px;
+  border: 1px solid rgba(243, 241, 232, 0.18);
+  border-radius: 8px;
+  background: rgba(16, 17, 15, 0.82);
+  color: #f3f1e8;
+  font-weight: 800;
 }
 
 .range input {

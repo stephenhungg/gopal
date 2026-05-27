@@ -6,17 +6,21 @@ const ui = {
   vrmStage: document.querySelector("#vrmStage"),
   start: document.querySelector("#start"),
   stop: document.querySelector("#stop"),
+  lookNow: document.querySelector("#lookNow"),
+  voice: document.querySelector("#voice"),
   status: document.querySelector("#status"),
   gopal: document.querySelector("#gopal"),
   mood: document.querySelector("#mood"),
   caption: document.querySelector("#caption"),
   log: document.querySelector("#log"),
   autoLook: document.querySelector("#autoLook"),
+  ambientTalk: document.querySelector("#ambientTalk"),
   frameRate: document.querySelector("#frameRate")
 };
 
 const runtime = new GopalRuntime({
-  frameIntervalMs: Number(ui.frameRate.value) * 1000
+  frameIntervalMs: Number(ui.frameRate.value) * 1000,
+  voice: ui.voice.value
 });
 const vrmStage = new GopalVrmStage(ui.vrmStage);
 
@@ -29,7 +33,14 @@ vrmStage.load().catch((error) => {
 
 ui.start.addEventListener("click", start);
 ui.stop.addEventListener("click", stop);
+ui.lookNow.addEventListener("click", () => runtime.speakAboutCurrentFrame());
+ui.voice.addEventListener("change", () => {
+  if (!runtime.setVoice(ui.voice.value)) {
+    log("voice locks after wake. stop and wake again to switch.");
+  }
+});
 ui.autoLook.addEventListener("change", () => runtime.setAutoLook(ui.autoLook.checked));
+ui.ambientTalk.addEventListener("change", () => runtime.setAmbientTalk(ui.ambientTalk.checked));
 ui.frameRate.addEventListener("input", () => runtime.setFrameInterval(Number(ui.frameRate.value)));
 
 runtime.addEventListener("camera", (event) => {
@@ -48,8 +59,9 @@ runtime.addEventListener("caption", (event) => {
   setCaption(event.detail.text);
 });
 
-runtime.addEventListener("frame", () => {
-  log("sent frame");
+runtime.addEventListener("frame", (event) => {
+  const mode = event.detail.spoke ? "spoke" : "context";
+  log(`frame ${mode}, change ${event.detail.changeScore.toFixed(1)}`);
 });
 
 runtime.addEventListener("log", (event) => {
@@ -67,6 +79,8 @@ async function start() {
   try {
     await runtime.start();
     ui.stop.disabled = false;
+    ui.lookNow.disabled = false;
+    ui.voice.disabled = true;
   } catch (error) {
     console.error(error);
     log(`failed: ${error.message || error}`);
@@ -81,6 +95,8 @@ function stop() {
   ui.camera.srcObject = null;
   ui.start.disabled = false;
   ui.stop.disabled = true;
+  ui.lookNow.disabled = true;
+  ui.voice.disabled = false;
 }
 
 function setMood(mood, caption) {

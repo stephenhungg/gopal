@@ -42,6 +42,8 @@ The browser runtime lives in `apps/web-demo/public/gopal-runtime.js`. It owns fu
 - posts the SDP offer to `POST /v1/realtime/calls`
 - listens for Realtime events over the `oai-events` data channel
 - captures camera frames and sends them as `input_image` conversation items
+- sends most frames as silent visual context
+- requests speech only for user turns, manual look requests, or meaningful ambient scene changes
 
 The test UI in `apps/web-demo/public/app.js` only imports `GopalRuntime` and maps its events onto the page. It is not the product interface.
 
@@ -96,3 +98,13 @@ The app should move from fixed interval frame sending to adaptive perception:
 - keep audio WebRTC native for low-latency speech
 
 The success metric is subjective but clear: the user should feel like Gopal is watching the same world at the same time, not commenting on stale screenshots.
+
+## ambient behavior
+
+The runtime intentionally avoids talking nonstop:
+
+- every vision pulse can update model context silently
+- a simple frame-difference score detects meaningful visual change
+- ambient speech has an 18 second cooldown by default
+- `look now` forces an immediate spoken observation
+- user speech still gets normal low-latency realtime responses

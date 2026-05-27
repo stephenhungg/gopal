@@ -25,7 +25,8 @@ The priority is functional latency: see the world, react quickly, speak naturall
 - Camera preview from MacBook or Vision Pro Safari
 - Microphone to OpenAI Realtime over WebRTC
 - OpenAI audio responses with a goblin system prompt
-- Periodic camera frame snapshots sent as image inputs
+- Periodic camera frame snapshots sent as silent visual context
+- Ambient speech only on meaningful scene changes or `look now`
 - Animated VRM goblin state: idle, listening, thinking, speaking
 
 The current OpenAI realtime model supports text, audio, and image input, plus audio output. It does not support native continuous video input, so Gopal samples the live camera stream into JPEG frames and sends those frames every few seconds.
@@ -80,6 +81,8 @@ await runtime.start();
 
 Your Vision Pro UI only needs to provide a video element or camera stream surface, then listen for runtime events like `status`, `camera`, `audio`, `mood`, `caption`, `frame`, `realtime`, `log`, and `error`.
 
+Camera frames are usually sent as silent context. The runtime only asks the model to speak on user voice turns, manual `runtime.speakAboutCurrentFrame()`, or meaningful ambient changes after a cooldown.
+
 The goblin interface is `GopalVrmStage`:
 
 ```js
@@ -99,9 +102,9 @@ This keeps the realtime functionality and the rendered goblin separate, while st
 ## model defaults
 
 - `OPENAI_REALTIME_MODEL=gpt-realtime-2`
-- `OPENAI_REALTIME_VOICE=marin`
+- `OPENAI_REALTIME_VOICE=cedar`
 
-`gpt-realtime-2` is the high-end realtime voice model. `marin` is one of the recommended built-in voices. The goblin character comes mostly from the system prompt and speaking style.
+`gpt-realtime-2` is the high-end realtime voice model. `cedar` and `marin` are the recommended high-quality built-in voices. Realtime also supports `alloy`, `ash`, `ballad`, `coral`, `echo`, `sage`, `shimmer`, and `verse`. Voice is chosen before the session starts and locks once the model speaks.
 
 ## file structure
 
@@ -140,6 +143,6 @@ gopal/
 2. Support browser `getUserMedia` first.
 3. Add external stream adapters: RTSP, WebRTC ingest, screen capture, local files.
 4. Lower frame-to-reaction latency with adaptive frame sampling.
-5. Add motion/change detection so frames are sent when the scene changes, not only on a timer.
+5. Improve motion/change detection so ambient speech feels intentional.
 6. Add interruptible speech so Gopal can react immediately to new visual events.
 7. Move the same perception loop into Vision Pro once the web loop feels alive.

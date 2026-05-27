@@ -49,13 +49,33 @@
         <aside class="panel">
           <button id="start">wake gopal</button>
           <button id="stop" disabled>banish</button>
+          <button id="lookNow" disabled>look now</button>
+          <label class="select">
+            <span>voice</span>
+            <select id="voice">
+              <option value="cedar" selected>cedar</option>
+              <option value="marin">marin</option>
+              <option value="verse">verse</option>
+              <option value="ballad">ballad</option>
+              <option value="coral">coral</option>
+              <option value="ash">ash</option>
+              <option value="sage">sage</option>
+              <option value="echo">echo</option>
+              <option value="shimmer">shimmer</option>
+              <option value="alloy">alloy</option>
+            </select>
+          </label>
           <label class="toggle">
             <input id="autoLook" type="checkbox" checked />
-            <span>auto look</span>
+            <span>vision</span>
+          </label>
+          <label class="toggle">
+            <input id="ambientTalk" type="checkbox" checked />
+            <span>ambient talk</span>
           </label>
           <label class="range">
-            <span>frame pulse</span>
-            <input id="frameRate" type="range" min="2" max="12" value="5" />
+            <span>vision pulse</span>
+            <input id="frameRate" type="range" min="2" max="10" value="4" />
           </label>
         </aside>
 

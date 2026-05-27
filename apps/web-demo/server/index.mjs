@@ -9,9 +9,6 @@ const publicDir = join(root, "apps/web-demo/public");
 const nodeModulesDir = join(root, "node_modules");
 const goblinModelPath = join(root, "goblin/5471668261992954414.vrm");
 const promptPath = join(root, "packages/prompts/gopal-system.md");
-const port = Number(process.env.PORT || 3000);
-const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
-const voice = process.env.OPENAI_REALTIME_VOICE || "marin";
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -39,6 +36,22 @@ function loadDotEnv() {
 }
 
 loadDotEnv();
+
+const port = Number(process.env.PORT || 3000);
+const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
+const defaultVoice = process.env.OPENAI_REALTIME_VOICE || "cedar";
+const supportedVoices = new Set([
+  "alloy",
+  "ash",
+  "ballad",
+  "coral",
+  "echo",
+  "sage",
+  "shimmer",
+  "verse",
+  "marin",
+  "cedar"
+]);
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
@@ -74,6 +87,9 @@ async function createRealtimeSession(req, res) {
   }
 
   const instructions = await readFile(promptPath, "utf8");
+  const requestedVoice = typeof body.voice === "string" ? body.voice : defaultVoice;
+  const voice = supportedVoices.has(requestedVoice) ? requestedVoice : defaultVoice;
+
   const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
     method: "POST",
     headers: {
@@ -99,7 +115,7 @@ async function createRealtimeSession(req, res) {
           },
           output: {
             voice,
-            speed: 1.15
+            speed: 1.06
           }
         }
       }
@@ -176,6 +192,15 @@ function serveStatic(req, res) {
 
 createServer(async (req, res) => {
   try {
+    if (req.method === "GET" && req.url === "/voices") {
+      sendJson(res, 200, {
+        defaultVoice,
+        voices: [...supportedVoices],
+        recommended: ["cedar", "marin"]
+      });
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/session") {
       await createRealtimeSession(req, res);
       return;
