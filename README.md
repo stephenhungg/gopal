@@ -8,9 +8,7 @@ goblin opal: realtime voice companion for apple vision pro.
 gopal/
   apps/
     landing-page/
-      index.html
-      styles.css
-      app.js
+      .gitkeep
     visionos/
       Gopal/
         GopalApp.swift
