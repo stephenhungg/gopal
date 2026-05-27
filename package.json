@@ -1,0 +1,13 @@
+{
+  "name": "gopal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node apps/web-demo/server/index.mjs",
+    "start": "node apps/web-demo/server/index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

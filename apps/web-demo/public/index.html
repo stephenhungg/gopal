@@ -1,1 +1,56 @@
-<!-- placeholder for browser demo markup -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gopal Live</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="stage" aria-label="Gopal realtime demo">
+        <video id="camera" autoplay muted playsinline></video>
+        <canvas id="snapshot" width="640" height="360" aria-hidden="true"></canvas>
+
+        <div class="hud">
+          <div class="brand">
+            <span class="sigil"></span>
+            <span>Gopal</span>
+          </div>
+          <div id="status" class="status">offline</div>
+        </div>
+
+        <div id="gopal" class="gopal idle" aria-live="polite">
+          <div class="aura"></div>
+          <div class="head">
+            <div class="horn left"></div>
+            <div class="horn right"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+          </div>
+          <div class="caption">
+            <strong id="mood">idle</strong>
+            <span id="caption">waiting for the ritual</span>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <button id="start">wake gopal</button>
+          <button id="stop" disabled>banish</button>
+          <label class="toggle">
+            <input id="autoLook" type="checkbox" checked />
+            <span>auto look</span>
+          </label>
+          <label class="range">
+            <span>frame pulse</span>
+            <input id="frameRate" type="range" min="2" max="12" value="5" />
+          </label>
+        </aside>
+
+        <ol id="log" class="log" aria-label="event log"></ol>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
