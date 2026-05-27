@@ -20,11 +20,13 @@ The priority is functional latency: see the world, react quickly, speak naturall
 
 - Browser demo at `apps/web-demo`
 - Reusable browser runtime at `apps/web-demo/public/gopal-runtime.js`
+- Real VRM goblin renderer at `apps/web-demo/public/vrm-stage.js`
+- Goblin model served from `goblin/5471668261992954414.vrm`
 - Camera preview from MacBook or Vision Pro Safari
 - Microphone to OpenAI Realtime over WebRTC
 - OpenAI audio responses with a goblin system prompt
 - Periodic camera frame snapshots sent as image inputs
-- Animated goblin avatar state: idle, listening, thinking, speaking
+- Animated VRM goblin state: idle, listening, thinking, speaking
 
 The current OpenAI realtime model supports text, audio, and image input, plus audio output. It does not support native continuous video input, so Gopal samples the live camera stream into JPEG frames and sends those frames every few seconds.
 
@@ -57,7 +59,7 @@ Click `wake gopal`, allow camera and mic, then talk.
 
 ## plugging into another interface
 
-The test UI is disposable. The functional core is `GopalRuntime`:
+The functional core is `GopalRuntime`:
 
 ```js
 import { GopalRuntime } from "/gopal-runtime.js";
@@ -78,6 +80,22 @@ await runtime.start();
 
 Your Vision Pro UI only needs to provide a video element or camera stream surface, then listen for runtime events like `status`, `camera`, `audio`, `mood`, `caption`, `frame`, `realtime`, `log`, and `error`.
 
+The goblin interface is `GopalVrmStage`:
+
+```js
+import { GopalRuntime } from "/gopal-runtime.js";
+import { GopalVrmStage } from "/vrm-stage.js";
+
+const runtime = new GopalRuntime();
+const stage = new GopalVrmStage(document.querySelector("canvas"));
+
+stage.bindRuntime(runtime);
+await stage.load();
+await runtime.start();
+```
+
+This keeps the realtime functionality and the rendered goblin separate, while still letting the model react to speaking/listening/thinking states.
+
 ## model defaults
 
 - `OPENAI_REALTIME_MODEL=gpt-realtime-2`
@@ -95,7 +113,11 @@ gopal/
     visionos/
     web-demo/
       public/
+        gopal-runtime.js
+        vrm-stage.js
       server/
+  goblin/
+    5471668261992954414.vrm
   packages/
     prompts/
       gopal-system.md

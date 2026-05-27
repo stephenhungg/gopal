@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gopal Live</title>
     <link rel="stylesheet" href="/styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/",
+          "@pixiv/three-vrm": "/node_modules/@pixiv/three-vrm/lib/three-vrm.module.js"
+        }
+      }
+    </script>
   </head>
   <body>
     <main class="shell">
@@ -19,6 +28,8 @@
           </div>
           <div id="status" class="status">offline</div>
         </div>
+
+        <canvas id="vrmStage" class="vrm-stage" aria-label="Gopal VRM avatar"></canvas>
 
         <div id="gopal" class="gopal idle" aria-live="polite">
           <div class="aura"></div>

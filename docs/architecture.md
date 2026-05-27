@@ -45,6 +45,21 @@ The browser runtime lives in `apps/web-demo/public/gopal-runtime.js`. It owns fu
 
 The test UI in `apps/web-demo/public/app.js` only imports `GopalRuntime` and maps its events onto the page. It is not the product interface.
 
+## goblin interface
+
+The browser interface renders the VRM file at `goblin/5471668261992954414.vrm` through `apps/web-demo/public/vrm-stage.js`.
+
+`GopalVrmStage` owns only model rendering:
+
+- loads the VRM model from `/models/goblin.vrm`
+- frames it in a transparent Three.js canvas
+- puts the model in a simple standing pose
+- animates idle bobbing
+- opens mouth / expression values while the runtime is speaking
+- reacts to runtime `mood` events
+
+This keeps the goblin view separate from `GopalRuntime`, so a Vision Pro surface can replace either the DOM test UI or the renderer without touching the realtime OpenAI path.
+
 ## runtime events
 
 External interfaces should plug into these events:

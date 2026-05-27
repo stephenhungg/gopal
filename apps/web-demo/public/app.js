@@ -1,7 +1,9 @@
 import { GopalRuntime } from "./gopal-runtime.js";
+import { GopalVrmStage } from "./vrm-stage.js";
 
 const ui = {
   camera: document.querySelector("#camera"),
+  vrmStage: document.querySelector("#vrmStage"),
   start: document.querySelector("#start"),
   stop: document.querySelector("#stop"),
   status: document.querySelector("#status"),
@@ -16,8 +18,14 @@ const ui = {
 const runtime = new GopalRuntime({
   frameIntervalMs: Number(ui.frameRate.value) * 1000
 });
+const vrmStage = new GopalVrmStage(ui.vrmStage);
 
 runtime.attachVideoElement(ui.camera);
+vrmStage.bindRuntime(runtime);
+vrmStage.load().catch((error) => {
+  console.error(error);
+  log(`vrm failed: ${error.message || error}`);
+});
 
 ui.start.addEventListener("click", start);
 ui.stop.addEventListener("click", stop);

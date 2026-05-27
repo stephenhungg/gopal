@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 const publicDir = join(root, "apps/web-demo/public");
+const nodeModulesDir = join(root, "node_modules");
+const goblinModelPath = join(root, "goblin/5471668261992954414.vrm");
 const promptPath = join(root, "packages/prompts/gopal-system.md");
 const port = Number(process.env.PORT || 3000);
 const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
@@ -15,7 +17,9 @@ const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
-  ".json": "application/json; charset=utf-8"
+  ".json": "application/json; charset=utf-8",
+  ".vrm": "model/gltf-binary",
+  ".glb": "model/gltf-binary"
 };
 
 function loadDotEnv() {
@@ -122,17 +126,7 @@ function safeJson(text) {
   }
 }
 
-function serveStatic(req, res) {
-  const requestPath = new URL(req.url, `http://${req.headers.host}`).pathname;
-  const filePath = requestPath === "/" ? "/index.html" : requestPath;
-  const resolved = normalize(join(publicDir, filePath));
-
-  if (!resolved.startsWith(publicDir)) {
-    res.writeHead(403);
-    res.end("Forbidden");
-    return;
-  }
-
+function serveFile(req, res, resolved) {
   if (!existsSync(resolved)) {
     res.writeHead(404);
     res.end("Not found");
@@ -147,6 +141,37 @@ function serveStatic(req, res) {
     return;
   }
   createReadStream(resolved).pipe(res);
+}
+
+function serveStatic(req, res) {
+  const requestPath = new URL(req.url, `http://${req.headers.host}`).pathname;
+
+  if (requestPath === "/models/goblin.vrm") {
+    serveFile(req, res, goblinModelPath);
+    return;
+  }
+
+  if (requestPath.startsWith("/node_modules/")) {
+    const resolvedModule = normalize(join(root, requestPath));
+    if (!resolvedModule.startsWith(nodeModulesDir)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
+    serveFile(req, res, resolvedModule);
+    return;
+  }
+
+  const filePath = requestPath === "/" ? "/index.html" : requestPath;
+  const resolved = normalize(join(publicDir, filePath));
+
+  if (!resolved.startsWith(publicDir)) {
+    res.writeHead(403);
+    res.end("Forbidden");
+    return;
+  }
+
+  serveFile(req, res, resolved);
 }
 
 createServer(async (req, res) => {
