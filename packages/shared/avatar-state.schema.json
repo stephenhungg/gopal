@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GopalAvatarState",
+  "type": "object",
+  "properties": {
+    "mood": { "type": "string" },
+    "gesture": { "type": "string" },
+    "glowColor": { "type": "string" }
+  }
+}
