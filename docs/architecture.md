@@ -34,7 +34,7 @@ The local Node server never sends the standard API key to the browser. It reads 
 
 ## client
 
-The browser:
+The browser runtime lives in `apps/web-demo/public/gopal-runtime.js`. It owns functionality only:
 
 - requests camera and mic access
 - fetches a client secret from `/session`
@@ -42,6 +42,22 @@ The browser:
 - posts the SDP offer to `POST /v1/realtime/calls`
 - listens for Realtime events over the `oai-events` data channel
 - captures camera frames and sends them as `input_image` conversation items
+
+The test UI in `apps/web-demo/public/app.js` only imports `GopalRuntime` and maps its events onto the page. It is not the product interface.
+
+## runtime events
+
+External interfaces should plug into these events:
+
+- `status`: connection status like `summoning`, `live`, or `offline`
+- `camera`: local camera `MediaStream`
+- `audio`: remote audio stream and audio element
+- `mood`: simple avatar state such as `listening`, `thinking`, or `speaking`
+- `caption`: transcript text when available
+- `frame`: emitted after a sampled frame is sent
+- `realtime`: raw OpenAI Realtime event
+- `log`: human-readable runtime note
+- `error`: runtime or API error
 
 ## model choice
 

@@ -19,6 +19,7 @@ The priority is functional latency: see the world, react quickly, speak naturall
 ## what works now
 
 - Browser demo at `apps/web-demo`
+- Reusable browser runtime at `apps/web-demo/public/gopal-runtime.js`
 - Camera preview from MacBook or Vision Pro Safari
 - Microphone to OpenAI Realtime over WebRTC
 - OpenAI audio responses with a goblin system prompt
@@ -53,6 +54,29 @@ http://localhost:3000
 ```
 
 Click `wake gopal`, allow camera and mic, then talk.
+
+## plugging into another interface
+
+The test UI is disposable. The functional core is `GopalRuntime`:
+
+```js
+import { GopalRuntime } from "/gopal-runtime.js";
+
+const runtime = new GopalRuntime();
+runtime.attachVideoElement(document.querySelector("video"));
+
+runtime.addEventListener("mood", (event) => {
+  console.log(event.detail.mood, event.detail.caption);
+});
+
+runtime.addEventListener("caption", (event) => {
+  console.log(event.detail.text);
+});
+
+await runtime.start();
+```
+
+Your Vision Pro UI only needs to provide a video element or camera stream surface, then listen for runtime events like `status`, `camera`, `audio`, `mood`, `caption`, `frame`, `realtime`, `log`, and `error`.
 
 ## model defaults
 
