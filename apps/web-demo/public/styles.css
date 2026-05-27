@@ -30,8 +30,6 @@ input {
   position: relative;
   min-height: calc(100vh - 36px);
   overflow: hidden;
-  border: 1px solid rgba(243, 241, 232, 0.14);
-  border-radius: 8px;
   background: #161813;
 }
 
@@ -49,43 +47,21 @@ input {
   display: none;
 }
 
-.hud {
+.status {
   position: absolute;
   top: 18px;
-  left: 18px;
   right: 18px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  pointer-events: none;
-}
-
-.brand,
-.status {
   display: inline-flex;
   align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid rgba(243, 241, 232, 0.16);
-  border-radius: 8px;
-  background: rgba(16, 17, 15, 0.72);
-  backdrop-filter: blur(16px);
+  min-height: 28px;
+  padding: 0;
+  background: transparent;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-}
-
-.sigil {
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background: #a8ff52;
-  box-shadow: 0 0 20px #a8ff52;
-}
-
-.status {
-  color: #d8ff8a;
+  color: rgba(216, 255, 138, 0.78);
+  text-shadow: 0 0 18px rgba(168, 255, 82, 0.28);
+  pointer-events: none;
 }
 
 .gopal {
