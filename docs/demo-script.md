@@ -2,7 +2,7 @@
 
 ## setup
 
-1. Start the server with `npm run dev`.
+1. Start the server with `bun run dev`.
 2. Open `http://localhost:3000`.
 3. Click `wake gopal`.
 4. Allow camera and microphone.

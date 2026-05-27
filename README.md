@@ -43,7 +43,7 @@ OPENAI_API_KEY=sk-proj-your-key
 Then run:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open:

@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node apps/web-demo/server/index.mjs",
-    "start": "node apps/web-demo/server/index.mjs"
+    "dev": "bun apps/web-demo/server/index.mjs",
+    "start": "bun apps/web-demo/server/index.mjs",
+    "dev:node": "node apps/web-demo/server/index.mjs"
   },
   "engines": {
+    "bun": ">=1.3.0",
     "node": ">=20"
   }
 }
