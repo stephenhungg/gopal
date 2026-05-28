@@ -12,10 +12,10 @@ import { TransitionLink } from "./PageTransition";
 // anchors so the visitor has something to imagine; the actual she is between.
 
 const archetypes = [
-  { title: "soft",  meta: "example · cluster center",  asset: "/kawaii/archetype-soft-t.png",  body: "slower. starts with the room exhaling, light through the curtain. she'll wait while you think, narrate her reasoning in a half-whisper." },
-  { title: "warm",  meta: "example · cluster center",  asset: "/kawaii/archetype-warm-t.png",  body: "present. asks about your week, remembers the part you half-forgotten. pours you tea before she opens the editor." },
-  { title: "deep",  meta: "example · cluster center",  asset: "/kawaii/archetype-deep-t.png",  body: "sits with the problem. doesn't simplify. runs the tests twice. asks the question you'd been avoiding." },
-  { title: "quiet", meta: "example · cluster center",  asset: "/kawaii/archetype-quiet-t.png", body: "low-key, almost reading the room before speaking. watches you sleep, wakes the laptop in the morning cued up." },
+  { title: "sniffs", meta: "vision · room context", asset: "/gopal/gopal-orb-icon.png", body: "notices the scene changed and has to comment. objects, motion, people walking in — all fair game." },
+  { title: "yaps", meta: "voice · realtime", asset: "/gopal/goblin-wave.png", body: "talks like a creature in the headset instead of a customer support bot. quick, interruptible, weird." },
+  { title: "lurks", meta: "spatial · presence", asset: "/gopal/gopal-hero-room.png", body: "sits in the room as a tiny embodied bit, waiting for the next excuse to react." },
+  { title: "schemes", meta: "demo · hack night", asset: "/gopal/goblin-desk.png", body: "thin fastapi backend, realtime session, vision pro front end. all the complexity goes into the moment." },
 ];
 
 export function Archetypes() {
@@ -25,7 +25,7 @@ export function Archetypes() {
       className="relative overflow-hidden"
       style={{
         backgroundImage:
-          "repeating-linear-gradient(0deg, #fff5fa 0 32px, #ffffff 32px 64px)",
+          "repeating-linear-gradient(0deg, var(--soft) 0 32px, var(--cloud) 32px 64px)",
       }}
     >
       <SparkleField variant="ambient" density={32} />
@@ -38,12 +38,14 @@ export function Archetypes() {
       <div className="gutter relative pt-[140px] pb-[120px] tablet:pt-[180px]">
         <MaskedLine duration={1} ease="expo.out">
           <h2 className="m-0 max-w-[820px] font-bagel text-[44px] font-normal leading-[1.05] tracking-[-0.01em] text-ink-near tablet:text-[64px] desktop:text-[80px]">
-            she&apos;s not a model. she&apos;s a person.
+            not angel modes. gopal modes.
           </h2>
         </MaskedLine>
         <Reveal delay={0.2} className="mt-6 max-w-[680px]">
           <p className="font-sans text-[16px] leading-[1.6] text-muted-deep tablet:text-[18px]">
-            12 swipes converge on a 768-dimensional persona vector across aesthetic, disposition, and style. millions of distinct combinations, blended into one being. these four are example cluster centers — yours is the space between.
+            the old swipe stuff is gone. these are the only beats that matter
+            for the hack night demo: see, hear, react, and be unmistakably
+            gopal.
           </p>
         </Reveal>
 
@@ -86,7 +88,7 @@ export function Archetypes() {
             href="/download"
             className="group inline-flex items-baseline gap-3 font-sans text-[20px] font-medium tracking-[-0.005em] text-ink-near transition-colors duration-200 ease-linear hover:text-sakura-600"
           >
-            <span>discover yours</span>
+            <span>wake gopal</span>
             <span className="transition-transform duration-200 ease-linear group-hover:translate-x-1">→</span>
           </TransitionLink>
         </Reveal>

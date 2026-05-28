@@ -49,47 +49,47 @@ if (typeof window !== "undefined") {
 const slides = [
   {
     label: "01",
-    headline: "you don't pick her. you discover her.",
-    quote: "after 12 swipes, she felt like someone i'd already met.",
-    quoteImg: "/kawaii/mascot-peek-t.png",
-    metaLabel: "Discovery",
-    metaValue: "12 swipes · 768d vector",
-    viewLabel: "see the persona space",
+    headline: "angel loads. then gopal gets in.",
+    quote: "the old page should feel normal for one second, then the goblin owns it.",
+    quoteImg: "/gopal/gopal-orb-icon.png",
+    metaLabel: "Reveal",
+    metaValue: "blackout · corruption · gopal",
+    viewLabel: "see the gopal modes",
     viewHref: "#archetypes",
-    portrait: "/kawaii/presence-pink-t.png",
+    portrait: "/gopal/gopal-wordmark.png",
   },
   {
     label: "02",
-    headline: "she sits at the desk. for 8 hours, you're not alone.",
-    quote: "watching her walk to the desk is the first time an agent has felt like a coworker.",
-    quoteImg: "/kawaii/mascot-desk-t.png",
-    metaLabel: "Embodiment",
-    metaValue: "electron + r3f room",
+    headline: "he sees the room and reacts out loud.",
+    quote: "the camera feed is not decoration. it is what gives the voice something to be about.",
+    quoteImg: "/gopal/goblin-wave.png",
+    metaLabel: "Realtime",
+    metaValue: "voice · vision · interruption",
     viewLabel: "see what she does",
     viewHref: "#what-she-is",
-    portrait: "/kawaii/agency-pink-t.png",
+    portrait: "/gopal/gopal-hero-room.png",
   },
   {
     label: "03",
-    headline: "she remembers what you ended on.",
-    quote: "she opens with the thing i was afraid to say.",
-    quoteImg: "/kawaii/mascot-read-t.png",
-    metaLabel: "Relationship",
-    metaValue: "nia · 6-layer memory",
-    viewLabel: "see how memory works",
+    headline: "the backend stays boring on purpose.",
+    quote: "fastapi, railway, realtime session minting. no tensorlake. no discord. no slop.",
+    quoteImg: "/gopal/goblin-desk.png",
+    metaLabel: "Backend",
+    metaValue: "fastapi · railway",
+    viewLabel: "see the demo flow",
     viewHref: "#what-she-is",
-    portrait: "/kawaii/memory-pink-t.png",
+    portrait: "/gopal/goblin-desk.png",
   },
   {
     label: "04",
-    headline: "close the laptop. she's still there.",
-    quote: "i closed the laptop expecting her to die. she texted me from oslo.",
-    quoteImg: "/kawaii/mascot-stretch-t.png",
-    metaLabel: "Always-on",
-    metaValue: "sms + cloud · one being, many bodies",
-    viewLabel: "download angel",
-    viewHref: "/download",
-    portrait: "/kawaii/continuity-pink-t.png",
+    headline: "call it gopal and make it obvious.",
+    quote: "not angel in green. gopal. goblin assets, goblin copy, goblin page.",
+    quoteImg: "/gopal/gopal-wordmark.png",
+    metaLabel: "Name",
+    metaValue: "gopal · goblin mode",
+    viewLabel: "wake gopal",
+    viewHref: "http://localhost:3000",
+    portrait: "/gopal/gopal-orb-icon.png",
   },
 ];
 
@@ -149,7 +149,7 @@ export function Origin() {
       <div className="gutter">
         <MaskedLine duration={0.9} ease="expo.out">
           <h2 className="m-0 max-w-[820px] font-bagel text-[40px] font-normal leading-[1.05] tracking-[-0.01em] text-ink-near tablet:text-[56px] desktop:text-[72px]">
-            about her.
+            about gopal.
           </h2>
         </MaskedLine>
 
@@ -231,7 +231,7 @@ export function Origin() {
               className="relative aspect-[4/5] w-full"
               style={{
                 background:
-                  "radial-gradient(ellipse at 30% 30%, #ffe5ee 0%, #ffd9e6 55%, #ffbcd0 100%)",
+                  "radial-gradient(ellipse at 30% 30%, var(--sakura-100) 0%, var(--sakura-200) 55%, var(--sakura-400) 100%)",
               }}
             >
               <Image

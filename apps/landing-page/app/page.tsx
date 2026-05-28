@@ -9,8 +9,8 @@ import { Showcase } from "@/components/Showcase";
 import { Footer } from "@/components/Footer";
 import { GoblinCorruption } from "@/components/GoblinCorruption";
 
-// JSON-LD structured data — helps google parse "what is angel".
-const SITE_URL = "https://angel-swipe.vercel.app";
+// JSON-LD structured data.
+const SITE_URL = "https://gopal.ai";
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -18,57 +18,57 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: "angel",
+      name: "gopal",
       description:
-        "a kawaii desktop AI companion you don't prompt — you discover. swipe-converge on a 768d persona vector, then she sits at the desk with you for 8 hours and you don't feel alone.",
+        "a realtime goblin voice and vision companion for Apple Vision Pro.",
       inLanguage: "en-US",
       publisher: { "@id": `${SITE_URL}/#org` },
     },
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
-      name: "angel",
+      name: "gopal",
       url: SITE_URL,
-      logo: `${SITE_URL}/kawaii/wordmark-pink-nano.png`,
-      sameAs: ["https://github.com/stephenhungg/angel"],
+      logo: `${SITE_URL}/gopal/gopal-wordmark.png`,
+      sameAs: ["https://github.com/stephenhungg/gopal"],
     },
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#app`,
-      name: "angel",
-      applicationCategory: "ProductivityApplication",
-      operatingSystem: "macOS, Windows, Linux",
-      url: `${SITE_URL}/download`,
+      name: "gopal",
+      applicationCategory: "EntertainmentApplication",
+      operatingSystem: "visionOS, Web",
+      url: SITE_URL,
       description:
-        "an embodied desktop AI coworker. you discover her via swipe, then she lives on your machine — walks to the desk, sits, ships code, remembers you across sessions, replies via SMS when you close the laptop.",
+        "gopal sees and hears the room, then reacts through realtime voice as a goblin companion on Apple Vision Pro.",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-      image: `${SITE_URL}/kawaii/wordmark-pink-nano.png`,
+      image: `${SITE_URL}/gopal/gopal-wordmark.png`,
     },
     {
       "@type": "FAQPage",
       mainEntity: [
         {
           "@type": "Question",
-          name: "what is angel?",
+          name: "what is gopal?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "angel is a kawaii desktop AI coworker. you don't pick her or prompt her — you discover her by swiping through 12 cards across aesthetic, disposition, and style. her persona vector converges in a 768-dimensional space, so your specific her is one of millions of possible combinations. she lives on your machine, walks to the desk, ships your code, remembers you across sessions, and replies via SMS when the laptop is closed.",
+            text: "gopal is a realtime voice and vision companion for Apple Vision Pro. the page starts like angel, glitches, then reveals gopal.",
           },
         },
         {
           "@type": "Question",
-          name: "is angel just another AI agent?",
+          name: "is gopal just another AI agent?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "no. devin and openclaw and hermes ship code; angel sits at the desk with you so you don't feel alone for 8 hours. agents are converging on capability — angel diverges on engagement.",
+            text: "no. gopal is built around realtime voice, camera context, and embodied reactions instead of a normal chat interface.",
           },
         },
         {
           "@type": "Question",
-          name: "is angel free?",
+          name: "what does gopal use?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "yes. download for mac, windows, or linux from the github releases.",
+            text: "gopal uses realtime voice models and vision context to react to what is happening around the wearer.",
           },
         },
       ],
@@ -88,8 +88,7 @@ export default function HomePage() {
       <main className="min-h-screen bg-paper">
         <Nav />
         <h1 className="sr-only">
-          angel loads normally, then gopal corrupts the page into a realtime
-          goblin voice and vision companion.
+          gopal: a realtime goblin voice and vision companion.
         </h1>
         <Hero />
         <AlwaysOn />

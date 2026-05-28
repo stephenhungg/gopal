@@ -10,10 +10,10 @@ import { CuteAccent } from "./CuteAccent";
 // label. replaces the stock-photo placeholders entirely.
 
 const scenes = [
-  { title: "while you slept",     meta: "afk · 3:42 AM",        asset: "/kawaii/mascot-sleep-t.png" },
-  { title: "deep work",           meta: "main · pr #142",       asset: "/kawaii/mascot-desk-t.png" },
-  { title: "reading your codebase", meta: "files indexed · 412", asset: "/kawaii/mascot-read-t.png" },
-  { title: "stretching at sunrise", meta: "warmup · 6:08 AM",   asset: "/kawaii/mascot-stretch-t.png" },
+  { title: "room changes", meta: "camera · live", asset: "/gopal/gopal-hero-room.png" },
+  { title: "gopal notices", meta: "vision · context", asset: "/gopal/gopal-orb-icon.png" },
+  { title: "voice jumps in", meta: "realtime · interruptible", asset: "/gopal/goblin-wave.png" },
+  { title: "demo lands", meta: "fastapi · railway", asset: "/gopal/goblin-desk.png" },
 ];
 
 export function Showcase() {
@@ -22,7 +22,7 @@ export function Showcase() {
       className="relative overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse at 70% 0%, #ffd9e6 0%, #fff5fa 55%, #ffffff 100%)",
+          "radial-gradient(ellipse at 70% 0%, var(--sakura-200) 0%, var(--soft) 55%, var(--cloud) 100%)",
       }}
     >
       <SparkleField variant="ambient" density={28} />
@@ -33,7 +33,7 @@ export function Showcase() {
       <div className="gutter relative pt-[140px] pb-[120px] tablet:pt-[180px]">
         <MaskedLine duration={1} ease="expo.out">
           <h2 className="m-0 max-w-[820px] font-bagel text-[44px] font-normal leading-[1.05] tracking-[-0.01em] text-ink-near tablet:text-[64px] desktop:text-[80px]">
-            her hours, while you were away.
+            what the demo needs to show.
           </h2>
         </MaskedLine>
 

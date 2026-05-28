@@ -3,6 +3,7 @@ export class GopalRuntime extends EventTarget {
     super();
     this.sessionEndpoint = options.sessionEndpoint || "/session";
     this.ttsEndpoint = options.ttsEndpoint || "/tts";
+    this.tenzinEndpoint = options.tenzinEndpoint || "/tenzin";
     this.realtimeEndpoint = options.realtimeEndpoint || "https://api.openai.com/v1/realtime/calls";
     this.frameIntervalMs = options.frameIntervalMs || 3500;
     this.ambientCooldownMs = options.ambientCooldownMs || 18000;
@@ -105,7 +106,11 @@ export class GopalRuntime extends EventTarget {
       this.emit("log", { message: "data channel open" });
       this.prime();
     });
-    dc.addEventListener("message", (message) => this.handleRealtimeEvent(message));
+    dc.addEventListener("message", (message) => {
+      this.handleRealtimeEvent(message).catch((error) => {
+        this.emit("error", { error });
+      });
+    });
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
@@ -127,7 +132,7 @@ export class GopalRuntime extends EventTarget {
     });
   }
 
-  handleRealtimeEvent(message) {
+  async handleRealtimeEvent(message) {
     const event = JSON.parse(message.data);
     this.emit("realtime", { event });
 
@@ -152,6 +157,7 @@ export class GopalRuntime extends EventTarget {
         this.emit("caption", { text: this.responseText });
         break;
       case "response.done":
+        if (await this.handleFunctionCalls(event.response)) return;
         if (this.responseText.trim()) this.emit("speech", { text: this.responseText.trim() });
         this.emit("mood", { mood: "listening", caption: "watching" });
         break;
@@ -162,6 +168,69 @@ export class GopalRuntime extends EventTarget {
       default:
         break;
     }
+  }
+
+  async handleFunctionCalls(response) {
+    const calls = response?.output?.filter((item) => {
+      return item?.type === "function_call" && item.name === "delegate_to_tenzin";
+    }) || [];
+    if (calls.length === 0) return false;
+
+    for (const call of calls) {
+      await this.delegateToTenzin(call);
+    }
+
+    this.createResponse();
+    return true;
+  }
+
+  async delegateToTenzin(call) {
+    let args = {};
+    try {
+      args = call.arguments ? JSON.parse(call.arguments) : {};
+    } catch {
+      args = {};
+    }
+
+    const task = typeof args.task === "string" ? args.task : "";
+    const context = typeof args.context === "string" ? args.context : "";
+    this.emit("mood", { mood: "thinking", caption: "asking tenzin" });
+    this.emit("log", { message: `tenzin task: ${task.slice(0, 90) || "delegated request"}` });
+
+    let output;
+    try {
+      const response = await fetch(this.tenzinEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task, context })
+      });
+      const payload = await response.json().catch(() => ({}));
+      output = response.ok
+        ? {
+            ok: true,
+            result: payload.stdout || "(tenzin finished without output)",
+            stderr: payload.stderr || ""
+          }
+        : {
+            ok: false,
+            error: payload.message || payload.error || `tenzin failed with http ${response.status}`,
+            detail: payload.stderr || payload.stdout || ""
+          };
+    } catch (error) {
+      output = {
+        ok: false,
+        error: error.message || String(error)
+      };
+    }
+
+    this.sendEvent({
+      type: "conversation.item.create",
+      item: {
+        type: "function_call_output",
+        call_id: call.call_id,
+        output: JSON.stringify(output)
+      }
+    });
   }
 
   prime() {

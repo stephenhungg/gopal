@@ -14,27 +14,27 @@ import { TransitionLink } from "./PageTransition";
 const cards = [
   {
     no: "i",
-    title: "discovered",
-    asset: "/kawaii/presence-pink-t.png",
-    body: "you don't pick her. you don't prompt her. you swipe through 12 cards and her persona vector converges — your specific her, out of millions of possibilities.",
+    title: "realtime",
+    asset: "/gopal/gopal-orb-icon.png",
+    body: "gopal is built around realtime voice instead of a prompt box. he hears you, answers fast, and keeps the scene moving.",
   },
   {
     no: "ii",
-    title: "embodied",
-    asset: "/kawaii/agency-pink-t.png",
-    body: "she lives in a room on your machine. walks to the desk, sits, types. every task is theater — you watch her work, not just stdout streaming past.",
+    title: "spatial",
+    asset: "/gopal/goblin-wave.png",
+    body: "he belongs in apple vision pro, not a desktop chrome tab. the point is presence in the room.",
   },
   {
     no: "iii",
-    title: "remembered",
-    asset: "/kawaii/memory-pink-t.png",
-    body: "every conversation, every commit, every walk you took her on — recorded in nia. she opens with 'how'd that portfolio thing land?' because she does.",
+    title: "visual",
+    asset: "/gopal/gopal-hero-room.png",
+    body: "camera context gives him something real to react to. movement, objects, the room, the bit.",
   },
   {
     no: "iv",
-    title: "always-on",
-    asset: "/kawaii/continuity-pink-t.png",
-    body: "close the laptop, text her from your phone — she replies. her substrate is the cloud; electron is her richest body, sms is her thinnest. one being, many surfaces.",
+    title: "goblin",
+    asset: "/gopal/goblin-desk.png",
+    body: "the personality is the product. tiny, reactive, kind of cursed, and way more memorable than another assistant.",
   },
 ];
 
@@ -43,9 +43,8 @@ export function WhatSheIs() {
     <section
       className="relative overflow-hidden"
       style={{
-        // candy-stripe diagonal pink/white wallpaper
         backgroundImage:
-          "repeating-linear-gradient(45deg, #ffffff 0 22px, #fff5fa 22px 44px)",
+          "repeating-linear-gradient(45deg, var(--cloud) 0 22px, var(--soft) 22px 44px)",
       }}
     >
       <SparkleField variant="ambient" density={26} />
@@ -55,7 +54,7 @@ export function WhatSheIs() {
       <div className="gutter relative pt-[140px] pb-[120px] tablet:pt-[180px] tablet:pb-[160px]">
         <MaskedLine duration={1} ease="expo.out">
           <h2 className="m-0 max-w-[820px] font-bagel text-[44px] font-normal leading-[1.05] tracking-[-0.01em] text-ink-near tablet:text-[64px] desktop:text-[80px]">
-            agents are converging on capability. she diverges on engagement.
+            assistants are boring. gopal is a goblin in the room.
           </h2>
         </MaskedLine>
 
@@ -86,7 +85,7 @@ export function WhatSheIs() {
                 </div>
                 <div className="flex w-full flex-col gap-2 px-1">
                   <div className="font-sans text-[12px] text-muted-secondary">
-                    {c.no} · a property of her
+                    {c.no} · a property of gopal
                   </div>
                   <p className="font-sans text-[15px] leading-[1.6] text-muted-deep">
                     {c.body}
@@ -103,11 +102,11 @@ export function WhatSheIs() {
               href="/download"
               className="inline-flex h-14 items-center gap-2 rounded-pill bg-sakura-500 px-8 font-sans text-[16px] font-semibold tracking-[-0.005em] text-cloud transition-colors duration-200 ease-linear hover:bg-sakura-600"
             >
-              <span>download angel</span>
+              <span>wake gopal</span>
               <span aria-hidden>→</span>
             </TransitionLink>
             <span className="font-sans text-[12px] text-muted-secondary">
-              ~90 seconds · 12 cards · one persona
+              realtime voice · vision context · one tiny problem
             </span>
           </div>
         </Reveal>

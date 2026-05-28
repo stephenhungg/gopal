@@ -186,7 +186,9 @@ body {
 /* ----------------------------------------------------------------- */
 
 .goblin-copy,
-.goblin-hero-room {
+.goblin-hero-room,
+.gopal-logo,
+.gopal-button-icon {
   display: none;
 }
 
@@ -261,16 +263,25 @@ body.goblin-mode {
   --sakura-900: #1d3a0d;
 }
 
-body.goblin-mode main {
-  filter: hue-rotate(82deg) saturate(1.12);
+body.goblin-mode .angel-copy {
+  display: none;
 }
 
-body.goblin-mode .angel-copy {
+body.goblin-mode .angel-logo,
+body.goblin-mode .angel-button-icon {
   display: none;
 }
 
 body.goblin-mode .goblin-copy {
   display: inline;
+}
+
+body.goblin-mode .gopal-logo {
+  display: block;
+}
+
+body.goblin-mode .gopal-button-icon {
+  display: block;
 }
 
 body.goblin-mode .goblin-hero-room {

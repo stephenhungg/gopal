@@ -122,19 +122,27 @@ export function Nav() {
               alt="angel"
               width={400}
               height={200}
-              className="h-8 w-auto select-none tablet:h-9 desktop:h-10"
+              className="angel-logo h-8 w-auto select-none tablet:h-9 desktop:h-10"
               style={{
                 filter: "drop-shadow(0 3px 0 rgba(155, 58, 95, 0.25))",
               }}
               priority
             />
             <Image
-              src="/kawaii/cute-bow-t.png"
+              src="/gopal/gopal-wordmark.png"
+              alt="gopal"
+              width={400}
+              height={200}
+              className="gopal-logo h-8 w-auto select-none tablet:h-9 desktop:h-10"
+              priority
+            />
+            <Image
+              src="/gopal/gopal-orb-icon.png"
               alt=""
               aria-hidden
               width={120}
               height={120}
-              className="h-5 w-auto -translate-y-0.5 select-none transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 tablet:h-6 desktop:h-7"
+              className="gopal-button-icon h-5 w-auto -translate-y-0.5 select-none rounded-full transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 tablet:h-6 desktop:h-7"
             />
           </Link>
           <button

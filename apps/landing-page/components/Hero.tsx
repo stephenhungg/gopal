@@ -50,7 +50,12 @@ export function Hero() {
               <img
                 src="/kawaii/wordmark-pink-nano.png"
                 alt="angel"
-                className="h-[180px] w-auto select-none tablet:h-[280px] desktop:h-[360px]"
+                className="angel-logo h-[180px] w-auto select-none tablet:h-[280px] desktop:h-[360px]"
+              />
+              <img
+                src="/gopal/gopal-wordmark.png"
+                alt="gopal"
+                className="gopal-logo h-[180px] w-auto select-none tablet:h-[280px] desktop:h-[360px]"
               />
             </h1>
             <p
@@ -58,7 +63,7 @@ export function Hero() {
               style={{ lineHeight: "normal" }}
             >
               <span className="angel-copy">By Stephen Hung &amp; Matthew Kim · 天使</span>
-              <span className="goblin-copy">By Stephen Hung &amp; Matthew Kim · G Opal</span>
+              <span className="goblin-copy">By Stephen Hung &amp; Matthew Kim · gopal</span>
             </p>
 
             <a
@@ -69,7 +74,13 @@ export function Hero() {
                 src="/kawaii/cute-strawberry-t.png"
                 alt=""
                 aria-hidden
-                className="h-10 w-10 select-none transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 tablet:h-12 tablet:w-12"
+                className="angel-button-icon h-10 w-10 select-none transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 tablet:h-12 tablet:w-12"
+              />
+              <img
+                src="/gopal/gopal-orb-icon.png"
+                alt=""
+                aria-hidden
+                className="gopal-button-icon h-10 w-10 select-none rounded-full transition-transform duration-300 ease-out group-hover:rotate-12 group-hover:scale-110 tablet:h-12 tablet:w-12"
               />
               <span className="angel-copy">download angel</span>
               <span className="goblin-copy">wake gopal</span>
@@ -89,8 +100,8 @@ export function Hero() {
               </span>
               <span className="goblin-copy">
                 he rides in your camera feed, hears the room, and speaks when
-                the scene actually changes. angel&apos;s presence, corrupted into
-                realtime goblin vision.
+                the scene actually changes. gopal is the tiny realtime goblin
+                living in the headset.
               </span>
             </p>
           </header>
@@ -109,10 +120,10 @@ export function Hero() {
               src="/kawaii/hero-room.png"
               alt=""
               aria-hidden
-              className="absolute inset-0 h-full w-full select-none object-cover"
+              className="angel-hero-room absolute inset-0 h-full w-full select-none object-cover"
             />
             <img
-              src="/gopal/goblin-room.png"
+              src="/gopal/gopal-hero-room.png"
               alt=""
               aria-hidden
               className="goblin-hero-room absolute inset-0 h-full w-full select-none object-cover"

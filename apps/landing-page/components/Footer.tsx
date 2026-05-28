@@ -99,8 +99,8 @@ export function Footer() {
       ref={sectionRef}
       className="relative flex min-h-screen flex-col overflow-hidden"
       style={{
-        // tiled kawaii cherry pattern wallpaper, color-matched to sakura palette
-        backgroundImage: "url(/kawaii/cherry-pattern.png)",
+        backgroundImage:
+          "radial-gradient(circle at 18% 24%, rgba(168, 255, 82, 0.32), transparent 22%), radial-gradient(circle at 82% 18%, rgba(216, 255, 155, 0.36), transparent 20%), repeating-linear-gradient(45deg, var(--soft) 0 22px, var(--cloud) 22px 44px)",
         backgroundRepeat: "repeat",
         backgroundSize: "640px auto",
       }}
@@ -111,7 +111,7 @@ export function Footer() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.55) 0%, rgba(255,245,250,0.35) 45%, rgba(255,235,245,0.5) 100%)",
+            "radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.58) 0%, rgba(240,255,219,0.42) 45%, rgba(216,255,155,0.34) 100%)",
         }}
       />
       <div ref={sparklesRef} className="absolute inset-0">
@@ -125,13 +125,13 @@ export function Footer() {
         className="pointer-events-none absolute right-[5%] top-[42%] hidden -translate-y-1/2 select-none tablet:block"
       >
         <Image
-          src="/kawaii/mascot-wave-t.png"
+          src="/gopal/goblin-wave.png"
           alt=""
           aria-hidden
           width={620}
           height={620}
           className="h-auto w-[260px] desktop:w-[380px]"
-          style={{ filter: "drop-shadow(0 16px 0 rgba(155, 58, 95, 0.22))" }}
+          style={{ filter: "drop-shadow(0 16px 0 rgba(54, 104, 21, 0.22))" }}
         />
       </div>
 
@@ -139,7 +139,7 @@ export function Footer() {
         {/* top row: secondary links right-aligned */}
         <div className="flex justify-end gap-6 font-sans text-[15px] font-medium text-ink-near">
           <a
-            href="https://github.com/stephenhungg/angel"
+            href="https://github.com/stephenhungg/gopal"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 min-w-11 items-center justify-center px-2 transition-colors hover:text-sakura-600"
@@ -165,7 +165,7 @@ export function Footer() {
             </MaskedLine>
             <MaskedLine duration={1.1} ease="expo.out" delay={0.15}>
               <p className="font-bagel text-[40px] font-normal leading-[1.05] tracking-[-0.01em] text-sakura-500 tablet:text-[64px] desktop:text-[88px]">
-                finding her ♡
+                finding gopal
               </p>
             </MaskedLine>
           </div>
@@ -175,7 +175,7 @@ export function Footer() {
               href="/download"
               className="inline-flex h-14 items-center gap-2 rounded-pill bg-sakura-500 px-8 font-sans text-[16px] font-semibold tracking-[-0.005em] text-cloud transition-colors duration-200 ease-linear hover:bg-sakura-600"
             >
-              <span>download angel</span>
+              <span>wake gopal</span>
               <span aria-hidden>↓</span>
             </TransitionLink>
             <span className="inline-flex items-center gap-2 px-3 py-4 font-sans text-[15px] text-muted-deep">
@@ -183,7 +183,7 @@ export function Footer() {
                 <span className="absolute inset-0 animate-ping rounded-full bg-sakura-500 opacity-75" />
                 <span className="relative inline-flex h-[7px] w-[7px] rounded-full bg-sakura-500" />
               </span>
-              she&apos;s online
+              gopal&apos;s online
             </span>
           </div>
         </div>
@@ -193,20 +193,20 @@ export function Footer() {
           <div className="flex flex-col gap-1">
             <span className="text-muted-secondary">Made with</span>
             <span className="font-medium text-ink-near">
-              love · 天使 · sonnet 4.6 · convex
+              voice hack night · gopal · realtime
             </span>
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-muted-secondary">Built at</span>
             <span className="font-medium text-ink-near">
-              nozomio hackathon · ef office, sf
+              openai voice hack night · sf
             </span>
             <span className="text-muted-tertiary">2026-05-09</span>
           </div>
           <div className="flex flex-col gap-1 tablet:items-end tablet:text-right">
-            <span className="text-muted-secondary">© 2026 angel</span>
+            <span className="text-muted-secondary">© 2026 gopal</span>
             <span className="text-muted-tertiary">
-              she&apos;d rather be honest than impressive.
+              tiny goblin, realtime mouth.
             </span>
           </div>
         </div>

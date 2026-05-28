@@ -195,7 +195,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         className="pointer-events-none fixed inset-0 z-[200] hidden items-center justify-center overflow-hidden"
         style={{
           background:
-            "linear-gradient(180deg, #ff4f8b 0%, #ff85a8 55%, #ffc1d3 100%)",
+            "linear-gradient(180deg, #1d3a0d 0%, #70c820 55%, #d8ff9b 100%)",
         }}
         aria-hidden
       >
@@ -228,11 +228,11 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
         {/* center stack: mascot + tagline */}
         <div className="relative z-10 flex flex-col items-center gap-6">
           <img
-            src="/kawaii/mascot-wave-t.png"
+            src="/gopal/goblin-wave.png"
             alt=""
             className="transition-mascot pointer-events-none h-auto w-[260px] select-none tablet:w-[320px]"
             style={{
-              filter: "drop-shadow(0 12px 0 rgba(155, 58, 95, 0.35))",
+              filter: "drop-shadow(0 12px 0 rgba(54, 104, 21, 0.35))",
             }}
           />
           <div
@@ -241,7 +241,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
               textShadow: "0 4px 0 rgba(155, 58, 95, 0.45)",
             }}
           >
-            summoning angel ♡
+            waking gopal
           </div>
         </div>
       </div>

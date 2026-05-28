@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { createReadStream, existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
@@ -45,6 +46,10 @@ const openAiVoice = process.env.OPENAI_REALTIME_VOICE || "cedar";
 const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || "OTMqA7lryJHXgAnPIQYt";
 const elevenLabsModelId = process.env.ELEVENLABS_MODEL_ID || "eleven_turbo_v2_5";
 const elevenLabsOutputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT || "mp3_44100_128";
+const tenzinRuntimeDir = process.env.TENZIN_RUNTIME_DIR || "/Users/stephenhung/.tenzin/runtime";
+const tenzinSourceDir = process.env.TENZIN_SOURCE_DIR || "/Users/stephenhung/Documents/GitHub/tenzin";
+const tenzinCliPath = process.env.TENZIN_CLI_PATH || join(tenzinSourceDir, "src/index.ts");
+const tenzinTimeoutMs = Number(process.env.TENZIN_TIMEOUT_MS || 10 * 60 * 1000);
 const supportedVoices = new Set([
   "alloy",
   "ash",
@@ -103,7 +108,29 @@ async function createRealtimeSession(req, res) {
       session: {
         type: "realtime",
         model,
-        instructions,
+        instructions: `${instructions}\n\n# tenzin delegation\nWhen the user asks you to do work, change files, inspect repos, run commands, check project state, start services, fix bugs, or otherwise act like an agent, call the delegate_to_tenzin tool. You are the embodied voice and vision front-end. Tenzin is the executor. Do not pretend you completed delegated work yourself until the tool returns. For casual conversation or visual observations, answer normally without the tool.`,
+        tools: [
+          {
+            type: "function",
+            name: "delegate_to_tenzin",
+            description: "Send a concrete user request to Tenzin, the local coding/ops agent, so it can actually inspect files, run commands, edit code, or perform tasks. Use this whenever the user asks Gopal to do real work.",
+            parameters: {
+              type: "object",
+              properties: {
+                task: {
+                  type: "string",
+                  description: "The exact task Tenzin should execute, rewritten clearly but without losing user intent."
+                },
+                context: {
+                  type: "string",
+                  description: "Optional brief context from the current conversation or camera scene that helps Tenzin understand the request."
+                }
+              },
+              required: ["task"]
+            }
+          }
+        ],
+        tool_choice: "auto",
         output_modalities: ["audio"],
         audio: {
           input: {
@@ -134,6 +161,153 @@ async function createRealtimeSession(req, res) {
   }
 
   sendJson(res, 200, safeJson(text));
+}
+
+function readTenzinDaemonStatus() {
+  const pidPath = join(tenzinRuntimeDir, ".claude/claudeclaw/daemon.pid");
+  const statePath = join(tenzinRuntimeDir, ".claude/claudeclaw/state.json");
+  const status = {
+    runtimeDir: tenzinRuntimeDir,
+    sourceDir: tenzinSourceDir,
+    cliPath: tenzinCliPath,
+    pid: null,
+    running: false,
+    state: null
+  };
+
+  if (existsSync(pidPath)) {
+    const rawPid = readFileSync(pidPath, "utf8").trim();
+    const pid = Number(rawPid);
+    if (Number.isFinite(pid) && pid > 0) {
+      status.pid = pid;
+      try {
+        process.kill(pid, 0);
+        status.running = true;
+      } catch {
+        status.running = false;
+      }
+    }
+  }
+
+  if (existsSync(statePath)) {
+    try {
+      status.state = JSON.parse(readFileSync(statePath, "utf8"));
+    } catch {
+      status.state = null;
+    }
+  }
+
+  return status;
+}
+
+function runProcess(command, args, { cwd, timeoutMs }) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, {
+      cwd,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    let stdout = "";
+    let stderr = "";
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGTERM");
+      setTimeout(() => child.kill("SIGKILL"), 2500).unref?.();
+    }, timeoutMs);
+    timer.unref?.();
+
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", (error) => {
+      clearTimeout(timer);
+      resolve({ exitCode: 1, stdout, stderr: stderr || error.message, timedOut });
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ exitCode: code ?? 1, stdout, stderr, timedOut });
+    });
+  });
+}
+
+function trimForClient(text, max = 12000) {
+  const clean = String(text || "").trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max)}\n\n[truncated ${clean.length - max} chars]`;
+}
+
+function cleanTenzinStdout(text) {
+  return String(text || "")
+    .replace(/\x1b\[[0-9;]*m/g, "")
+    .split(/\r?\n/)
+    .filter((line) => {
+      return !/^\[\d{1,2}:\d{2}:\d{2}\s[AP]M\]\s(?:Running:|Done:|Turn count:|Claude limit reached;)/.test(line.trim());
+    })
+    .join("\n")
+    .trim();
+}
+
+async function delegateToTenzin(req, res) {
+  const bodyText = await readBody(req);
+  let body = {};
+  try {
+    body = bodyText ? JSON.parse(bodyText) : {};
+  } catch {
+    sendJson(res, 400, { error: "invalid_json" });
+    return;
+  }
+
+  const task = typeof body.task === "string" ? body.task.trim() : "";
+  const context = typeof body.context === "string" ? body.context.trim() : "";
+  if (!task) {
+    sendJson(res, 400, { error: "missing_task" });
+    return;
+  }
+
+  const status = readTenzinDaemonStatus();
+  if (!status.running) {
+    sendJson(res, 503, {
+      error: "tenzin_not_running",
+      message: "Tenzin daemon is not running from the configured runtime directory.",
+      status
+    });
+    return;
+  }
+  if (!existsSync(tenzinCliPath)) {
+    sendJson(res, 500, {
+      error: "tenzin_cli_missing",
+      message: "Tenzin CLI path does not exist.",
+      cliPath: tenzinCliPath
+    });
+    return;
+  }
+
+  const prompt = [
+    "You are Tenzin. This request came through Gopal, the local voice and vision avatar.",
+    "Act on the user's request directly. If repo or system context matters, inspect it yourself.",
+    "Keep the final answer concise because Gopal will speak it back out loud.",
+    "",
+    `User request: ${task}`,
+    context ? `\nGopal context:\n${context}` : ""
+  ].filter(Boolean).join("\n");
+
+  const result = await runProcess("bun", [tenzinCliPath, "send", prompt], {
+    cwd: tenzinRuntimeDir,
+    timeoutMs: tenzinTimeoutMs
+  });
+
+  sendJson(res, result.exitCode === 0 ? 200 : 500, {
+    ok: result.exitCode === 0,
+    exitCode: result.exitCode,
+    timedOut: result.timedOut,
+    stdout: trimForClient(cleanTenzinStdout(result.stdout)),
+    rawStdout: trimForClient(result.stdout),
+    stderr: trimForClient(result.stderr, 4000)
+  });
 }
 
 async function createElevenLabsSpeech(req, res) {
@@ -275,6 +449,16 @@ function serveStatic(req, res) {
 
 createServer(async (req, res) => {
   try {
+    if (req.method === "GET" && req.url === "/tenzin/status") {
+      sendJson(res, 200, readTenzinDaemonStatus());
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/tenzin") {
+      await delegateToTenzin(req, res);
+      return;
+    }
+
     if (req.method === "GET" && req.url === "/voices") {
       sendJson(res, 200, {
         mode: "elevenlabs",
