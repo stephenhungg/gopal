@@ -24,7 +24,8 @@ The priority is functional latency: see the world, react quickly, speak naturall
 - Goblin model served from `goblin/5471668261992954414.vrm`
 - Camera preview from MacBook or Vision Pro Safari
 - Microphone to OpenAI Realtime over WebRTC
-- OpenAI audio responses with a goblin system prompt
+- OpenAI Realtime for listening, vision context, and text responses
+- ElevenLabs custom voice output through `ELEVENLABS_VOICE_ID`
 - Periodic camera frame snapshots sent as silent visual context
 - Ambient speech only on meaningful scene changes or `look now`
 - Animated VRM goblin state: idle, listening, thinking, speaking
@@ -42,6 +43,8 @@ Put your OpenAI API key in `.env`:
 
 ```bash
 OPENAI_API_KEY=sk-proj-your-key
+ELEVENLABS_API_KEY=sk-your-elevenlabs-key
+ELEVENLABS_VOICE_ID=342hpGp7PKo7DsTTVSdr
 ```
 
 Then run:
@@ -102,9 +105,10 @@ This keeps the realtime functionality and the rendered goblin separate, while st
 ## model defaults
 
 - `OPENAI_REALTIME_MODEL=gpt-realtime-2`
-- `OPENAI_REALTIME_VOICE=cedar`
+- `ELEVENLABS_MODEL_ID=eleven_turbo_v2_5`
+- `ELEVENLABS_VOICE_ID=342hpGp7PKo7DsTTVSdr`
 
-`gpt-realtime-2` is the high-end realtime voice model. `cedar` and `marin` are the recommended high-quality built-in voices. Realtime also supports `alloy`, `ash`, `ballad`, `coral`, `echo`, `sage`, `shimmer`, and `verse`. Voice is chosen before the session starts and locks once the model speaks.
+`gpt-realtime-2` handles low-latency listening and text generation. ElevenLabs handles the final spoken voice. The server uses aggressive voice settings for unstable goblin energy and the browser plays the audio slightly slower with pitch preservation disabled for a deeper sound.
 
 ## file structure
 

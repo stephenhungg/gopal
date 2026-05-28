@@ -14,7 +14,7 @@ const ui = {
 
 const runtime = new GopalRuntime({
   frameIntervalMs: 4000,
-  voice: "cedar"
+  ttsPlaybackRate: 0.9
 });
 const vrmStage = new GopalVrmStage(ui.vrmStage);
 

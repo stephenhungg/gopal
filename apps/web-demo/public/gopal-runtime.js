@@ -2,6 +2,7 @@ export class GopalRuntime extends EventTarget {
   constructor(options = {}) {
     super();
     this.sessionEndpoint = options.sessionEndpoint || "/session";
+    this.ttsEndpoint = options.ttsEndpoint || "/tts";
     this.realtimeEndpoint = options.realtimeEndpoint || "https://api.openai.com/v1/realtime/calls";
     this.frameIntervalMs = options.frameIntervalMs || 3500;
     this.ambientCooldownMs = options.ambientCooldownMs || 18000;
@@ -9,7 +10,7 @@ export class GopalRuntime extends EventTarget {
     this.changeThreshold = options.changeThreshold || 14;
     this.imageWidth = options.imageWidth || 640;
     this.imageQuality = options.imageQuality || 0.72;
-    this.voice = options.voice || "cedar";
+    this.ttsPlaybackRate = options.ttsPlaybackRate || 0.9;
     this.videoConstraints = options.videoConstraints || {
       facingMode: "environment",
       width: { ideal: 1280 },
@@ -29,6 +30,8 @@ export class GopalRuntime extends EventTarget {
     this.micStream = null;
     this.cameraStream = null;
     this.remoteAudio = null;
+    this.ttsAudio = null;
+    this.ttsObjectUrl = null;
     this.frameTimer = null;
     this.canvas = document.createElement("canvas");
     this.signatureCanvas = document.createElement("canvas");
@@ -141,7 +144,7 @@ export class GopalRuntime extends EventTarget {
       case "response.created":
         this.responseText = "";
         this.lastResponseAt = Date.now();
-        this.emit("mood", { mood: "speaking", caption: "speaking" });
+        this.emit("mood", { mood: "thinking", caption: "thinking" });
         break;
       case "response.output_text.delta":
       case "response.output_audio_transcript.delta":
@@ -149,7 +152,7 @@ export class GopalRuntime extends EventTarget {
         this.emit("caption", { text: this.responseText });
         break;
       case "response.done":
-        this.emit("mood", { mood: "listening", caption: "waiting for the next scene change" });
+        this.speakText(this.responseText);
         break;
       case "error":
         this.emit("error", { error: event.error || event });
@@ -163,12 +166,6 @@ export class GopalRuntime extends EventTarget {
   prime() {
     this.sendUserInput([{ type: "input_text", text: this.primePrompt }]);
     this.createResponse();
-  }
-
-  setVoice(voice) {
-    if (this.connected) return false;
-    this.voice = voice;
-    return true;
   }
 
   setFrameInterval(seconds) {
@@ -305,9 +302,63 @@ export class GopalRuntime extends EventTarget {
     this.sendEvent({
       type: "response.create",
       response: {
-        output_modalities: ["audio"]
+        output_modalities: ["text"]
       }
     });
+  }
+
+  async speakText(text) {
+    const clean = text.trim();
+    if (!clean) {
+      this.emit("mood", { mood: "listening", caption: "watching" });
+      return;
+    }
+
+    this.stopTtsAudio();
+    this.emit("mood", { mood: "speaking", caption: clean });
+
+    try {
+      const response = await fetch(this.ttsEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: clean })
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+
+      const blob = await response.blob();
+      this.ttsObjectUrl = URL.createObjectURL(blob);
+      const audio = new Audio(this.ttsObjectUrl);
+      audio.autoplay = true;
+      audio.playbackRate = this.ttsPlaybackRate;
+      if ("preservesPitch" in audio) audio.preservesPitch = false;
+      if ("mozPreservesPitch" in audio) audio.mozPreservesPitch = false;
+      if ("webkitPreservesPitch" in audio) audio.webkitPreservesPitch = false;
+      this.ttsAudio = audio;
+      this.emit("audio", { element: audio });
+
+      audio.addEventListener("ended", () => {
+        this.emit("mood", { mood: "listening", caption: "watching" });
+        this.stopTtsAudio();
+      }, { once: true });
+
+      await audio.play();
+    } catch (error) {
+      this.emit("error", { error });
+      this.emit("mood", { mood: "listening", caption: "voice failed, still watching" });
+    }
+  }
+
+  stopTtsAudio() {
+    if (this.ttsAudio) {
+      this.ttsAudio.pause();
+      this.ttsAudio.src = "";
+      this.ttsAudio = null;
+    }
+    if (this.ttsObjectUrl) {
+      URL.revokeObjectURL(this.ttsObjectUrl);
+      this.ttsObjectUrl = null;
+    }
   }
 
   sendEvent(event) {
@@ -318,6 +369,7 @@ export class GopalRuntime extends EventTarget {
 
   stop() {
     this.stopFramePump();
+    this.stopTtsAudio();
     this.dc?.close();
     this.pc?.close();
     this.micStream?.getTracks().forEach((track) => track.stop());

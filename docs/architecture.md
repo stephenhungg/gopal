@@ -22,7 +22,8 @@ Gopal is a browser-first realtime companion.
 Browser camera + mic
   -> WebRTC audio track to OpenAI Realtime
   -> JPEG camera snapshots over Realtime data channel
-  -> OpenAI audio output back over WebRTC
+  -> OpenAI text output over Realtime data channel
+  -> ElevenLabs custom voice TTS
   -> DOM avatar reacts to lifecycle events
 ```
 
@@ -44,6 +45,7 @@ The browser runtime lives in `apps/web-demo/public/gopal-runtime.js`. It owns fu
 - captures camera frames and sends them as `input_image` conversation items
 - sends most frames as silent visual context
 - requests speech only for user turns, manual look requests, or meaningful ambient scene changes
+- sends final text to `/tts` for ElevenLabs speech
 
 The test UI in `apps/web-demo/public/app.js` only imports `GopalRuntime` and maps its events onto the page. It is not the product interface.
 
@@ -80,7 +82,9 @@ External interfaces should plug into these events:
 
 Default: `gpt-realtime-2`.
 
-Reason: it is OpenAI's most capable realtime voice model and supports text, image, and audio input with text and audio output. Native video input is not supported, so continuous vision is approximated with periodic image frames.
+Reason: it is OpenAI's most capable realtime model for the live reasoning loop. Native video input is not supported, so continuous vision is approximated with periodic image frames.
+
+Speech output is handled by ElevenLabs voice `342hpGp7PKo7DsTTVSdr` through `/tts`. This adds some latency versus OpenAI speech-to-speech, but gives us the exact custom goblin voice.
 
 ## next architecture step
 

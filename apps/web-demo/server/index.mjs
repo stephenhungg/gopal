@@ -39,7 +39,9 @@ loadDotEnv();
 
 const port = Number(process.env.PORT || 3000);
 const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
-const defaultVoice = process.env.OPENAI_REALTIME_VOICE || "cedar";
+const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || "342hpGp7PKo7DsTTVSdr";
+const elevenLabsModelId = process.env.ELEVENLABS_MODEL_ID || "eleven_turbo_v2_5";
+const elevenLabsOutputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT || "mp3_44100_128";
 const supportedVoices = new Set([
   "alloy",
   "ash",
@@ -87,9 +89,6 @@ async function createRealtimeSession(req, res) {
   }
 
   const instructions = await readFile(promptPath, "utf8");
-  const requestedVoice = typeof body.voice === "string" ? body.voice : defaultVoice;
-  const voice = supportedVoices.has(requestedVoice) ? requestedVoice : defaultVoice;
-
   const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
     method: "POST",
     headers: {
@@ -102,7 +101,7 @@ async function createRealtimeSession(req, res) {
         type: "realtime",
         model,
         instructions,
-        output_modalities: ["audio"],
+        output_modalities: ["text"],
         audio: {
           input: {
             noise_reduction: { type: "far_field" },
@@ -112,10 +111,6 @@ async function createRealtimeSession(req, res) {
               create_response: true,
               interrupt_response: true
             }
-          },
-          output: {
-            voice,
-            speed: 1.06
           }
         }
       }
@@ -132,6 +127,76 @@ async function createRealtimeSession(req, res) {
   }
 
   sendJson(res, 200, safeJson(text));
+}
+
+async function createElevenLabsSpeech(req, res) {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    sendJson(res, 500, {
+      error: "missing_elevenlabs_api_key",
+      message: "Set ELEVENLABS_API_KEY in .env or your shell before starting the server."
+    });
+    return;
+  }
+
+  const bodyText = await readBody(req);
+  let body = {};
+  try {
+    body = bodyText ? JSON.parse(bodyText) : {};
+  } catch {
+    sendJson(res, 400, { error: "invalid_json" });
+    return;
+  }
+
+  const text = typeof body.text === "string" ? body.text.trim() : "";
+  if (!text) {
+    sendJson(res, 400, { error: "missing_text" });
+    return;
+  }
+
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}/stream?output_format=${elevenLabsOutputFormat}&enable_logging=false`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg"
+      },
+      body: JSON.stringify({
+        text: deepenSpeechText(text),
+        model_id: elevenLabsModelId,
+        voice_settings: {
+          stability: 0.22,
+          similarity_boost: 0.9,
+          style: 0.95,
+          use_speaker_boost: true,
+          speed: 0.92
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const detail = await response.text();
+    sendJson(res, response.status, {
+      error: "elevenlabs_tts_failed",
+      detail: safeJson(detail)
+    });
+    return;
+  }
+
+  res.writeHead(200, {
+    "Content-Type": "audio/mpeg",
+    "Cache-Control": "no-store"
+  });
+
+  const audio = Buffer.from(await response.arrayBuffer());
+  res.end(audio);
+}
+
+function deepenSpeechText(text) {
+  return `[low, raspy, conspiratorial, unstable goblin voice; darker pitch; manic but controlled]\n${text}`;
 }
 
 function safeJson(text) {
@@ -194,10 +259,17 @@ createServer(async (req, res) => {
   try {
     if (req.method === "GET" && req.url === "/voices") {
       sendJson(res, 200, {
-        defaultVoice,
+        mode: "elevenlabs",
+        elevenLabsVoiceId,
+        elevenLabsModelId,
         voices: [...supportedVoices],
         recommended: ["cedar", "marin"]
       });
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/tts") {
+      await createElevenLabsSpeech(req, res);
       return;
     }
 
