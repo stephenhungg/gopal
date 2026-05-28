@@ -88,7 +88,7 @@ Default: `gpt-realtime-2`.
 
 Reason: it is OpenAI's most capable realtime model for the live reasoning loop. Native video input is not supported, so continuous vision is approximated with periodic image frames.
 
-Speech output is handled by ElevenLabs voice `342hpGp7PKo7DsTTVSdr` through `/tts`. This adds some latency versus OpenAI speech-to-speech, but gives us the exact custom goblin voice.
+Speech output is handled by ElevenLabs voice `OTMqA7lryJHXgAnPIQYt` through `/tts`. This adds some latency versus OpenAI speech-to-speech, but gives us the exact custom goblin voice.
 
 ## next architecture step
 

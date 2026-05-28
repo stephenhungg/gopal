@@ -41,7 +41,7 @@ loadDotEnv();
 
 const port = Number(process.env.PORT || 3000);
 const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
-const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || "342hpGp7PKo7DsTTVSdr";
+const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || "OTMqA7lryJHXgAnPIQYt";
 const elevenLabsModelId = process.env.ELEVENLABS_MODEL_ID || "eleven_turbo_v2_5";
 const elevenLabsOutputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT || "mp3_44100_128";
 const supportedVoices = new Set([

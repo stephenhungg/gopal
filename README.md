@@ -31,7 +31,7 @@ The priority is functional latency: see the world, react quickly, speak naturall
 - Ambient speech only on meaningful scene changes or `look now`
 - Animated VRM goblin state: idle, listening, thinking, speaking
 
-The current OpenAI realtime model supports text, audio, and image input, plus audio output. It does not support native continuous video input, so Gopal samples the live camera stream into JPEG frames and sends those frames every few seconds.
+The current OpenAI realtime model supports text, audio, and image input. Gopal uses OpenAI for listening, vision context, and text generation, then ElevenLabs for the actual spoken goblin voice. Native continuous video input is not supported, so Gopal samples the live camera stream into JPEG frames and sends those frames every few seconds.
 
 ## quick start
 
@@ -45,7 +45,7 @@ Put your OpenAI API key in `.env`:
 ```bash
 OPENAI_API_KEY=sk-proj-your-key
 ELEVENLABS_API_KEY=sk-your-elevenlabs-key
-ELEVENLABS_VOICE_ID=342hpGp7PKo7DsTTVSdr
+ELEVENLABS_VOICE_ID=OTMqA7lryJHXgAnPIQYt
 ```
 
 Then run:
@@ -107,7 +107,7 @@ This keeps the realtime functionality and the rendered goblin separate, while st
 
 - `OPENAI_REALTIME_MODEL=gpt-realtime-2`
 - `ELEVENLABS_MODEL_ID=eleven_turbo_v2_5`
-- `ELEVENLABS_VOICE_ID=342hpGp7PKo7DsTTVSdr`
+- `ELEVENLABS_VOICE_ID=OTMqA7lryJHXgAnPIQYt`
 
 `gpt-realtime-2` handles low-latency listening and text generation. ElevenLabs handles the final spoken voice. The server uses aggressive voice settings for unstable goblin energy and the browser plays the audio slightly slower with pitch preservation disabled for a deeper sound.
 

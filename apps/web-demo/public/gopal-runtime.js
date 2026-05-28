@@ -29,7 +29,6 @@ export class GopalRuntime extends EventTarget {
     this.dc = null;
     this.micStream = null;
     this.cameraStream = null;
-    this.remoteAudio = null;
     this.ttsAudio = null;
     this.ttsObjectUrl = null;
     this.frameTimer = null;
@@ -88,15 +87,11 @@ export class GopalRuntime extends EventTarget {
     const pc = new RTCPeerConnection();
     this.pc = pc;
 
-    this.remoteAudio = document.createElement("audio");
-    this.remoteAudio.autoplay = true;
-    pc.ontrack = (event) => {
-      this.remoteAudio.srcObject = event.streams[0];
-      this.emit("audio", { stream: event.streams[0], element: this.remoteAudio });
-    };
-
     for (const track of this.micStream.getAudioTracks()) {
-      pc.addTrack(track, this.micStream);
+      pc.addTransceiver(track, {
+        direction: "sendonly",
+        streams: [this.micStream]
+      });
     }
 
     const dc = pc.createDataChannel("oai-events");
