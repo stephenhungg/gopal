@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
 
@@ -13,6 +14,10 @@ export class GopalVrmStage {
     this.mouth = 0;
     this.targetMouth = 0;
     this.loaded = false;
+    this.mixer = null;
+    this.animationActions = new Map();
+    this.currentAction = null;
+    this.animationReturnTimer = null;
 
     this.scene = new THREE.Scene();
     this.scene.background = null;
@@ -60,12 +65,85 @@ export class GopalVrmStage {
 
     this.vrm = vrm;
     this.scene.add(vrm.scene);
+    this.mixer = new THREE.AnimationMixer(vrm.scene);
     vrm.scene.rotation.y = Math.PI;
     vrm.scene.position.set(0, 0, 0);
     this.fitModel(vrm.scene);
     this.poseModel(vrm);
     this.loaded = true;
     this.animate();
+  }
+
+  async loadAnimations(animationMap) {
+    if (!this.vrm) throw new Error("load the VRM before loading animations");
+
+    const loader = new FBXLoader();
+    for (const [name, url] of Object.entries(animationMap)) {
+      const fbx = await loader.loadAsync(url);
+      const clip = this.createVrmClip(name, fbx.animations[0]);
+      const action = this.mixer.clipAction(clip);
+      action.loop = name === "dance" ? THREE.LoopRepeat : THREE.LoopOnce;
+      action.clampWhenFinished = name !== "dance";
+      this.animationActions.set(name, action);
+    }
+
+    this.mixer.addEventListener("finished", () => {
+      this.currentAction = null;
+    });
+  }
+
+  createVrmClip(name, sourceClip) {
+    if (!sourceClip) throw new Error(`missing animation clip for ${name}`);
+
+    const tracks = [];
+    for (const track of sourceClip.tracks) {
+      const parsed = parseTrackName(track.name);
+      const humanoidName = mixamoToVrmBone[parsed.bone];
+      if (!humanoidName) continue;
+
+      const node = this.vrm.humanoid.getNormalizedBoneNode(humanoidName);
+      if (!node) continue;
+
+      if (parsed.property === "quaternion") {
+        tracks.push(new THREE.QuaternionKeyframeTrack(`${node.name}.quaternion`, track.times, track.values));
+      }
+
+      if (parsed.property === "position" && humanoidName === "hips") {
+        const values = new Float32Array(track.values.length);
+        for (let i = 0; i < track.values.length; i += 3) {
+          values[i] = track.values[i] * 0.01;
+          values[i + 1] = track.values[i + 1] * 0.01;
+          values[i + 2] = track.values[i + 2] * 0.01;
+        }
+        tracks.push(new THREE.VectorKeyframeTrack(`${node.name}.position`, track.times, values));
+      }
+    }
+
+    if (!tracks.length) throw new Error(`no compatible tracks found for ${name}`);
+    return new THREE.AnimationClip(name, sourceClip.duration, tracks);
+  }
+
+  playAnimation(name, options = {}) {
+    const action = this.animationActions.get(name);
+    if (!action || !this.mixer) return false;
+
+    const fade = options.fade ?? 0.18;
+    const previous = this.currentAction;
+    if (previous === action && name !== "idle") action.reset();
+    if (previous && previous !== action) previous.fadeOut(fade);
+
+    action.reset().fadeIn(fade).play();
+    this.currentAction = action;
+
+    window.clearTimeout(this.animationReturnTimer);
+    if (name === "dance") {
+      this.animationReturnTimer = window.setTimeout(() => {
+        action.fadeOut(0.25);
+        if (this.currentAction === action) this.currentAction = null;
+      }, options.durationMs || 4200);
+    }
+
+    return true;
   }
 
   fitModel(object) {
@@ -115,14 +193,18 @@ export class GopalVrmStage {
     const delta = this.clock.getDelta();
     const t = this.clock.elapsedTime;
     this.controls.update();
+    this.mixer?.update(delta);
     this.vrm?.update(delta);
 
     if (this.vrm) {
       const root = this.vrm.scene;
+      const animationWeight = this.currentAction?.getEffectiveWeight() ?? 0;
       const bobSpeed = this.speaking ? 10 : this.mood === "thinking" ? 3.4 : 1.6;
       const bobAmount = this.speaking ? 0.032 : this.mood === "listening" ? 0.012 : 0.008;
-      root.position.y = Math.sin(t * bobSpeed) * bobAmount;
-      root.rotation.z = Math.sin(t * 1.7) * 0.025;
+      if (animationWeight < 0.35) {
+        root.position.y = Math.sin(t * bobSpeed) * bobAmount;
+        root.rotation.z = Math.sin(t * 1.7) * 0.025;
+      }
 
       this.targetMouth = this.speaking ? 0.28 + Math.abs(Math.sin(t * 18)) * 0.72 : 0;
       this.mouth += (this.targetMouth - this.mouth) * 0.32;
@@ -154,3 +236,68 @@ export class GopalVrmStage {
     this.renderer.setSize(width, height, false);
   }
 }
+
+function parseTrackName(trackName) {
+  const dot = trackName.lastIndexOf(".");
+  const rawBone = dot === -1 ? trackName : trackName.slice(0, dot);
+  const property = dot === -1 ? "" : trackName.slice(dot + 1);
+  return {
+    bone: rawBone.replace(/^.*:/, "").replace(/^mixamorig/i, "").replace(/[^a-z0-9]/gi, "").toLowerCase(),
+    property
+  };
+}
+
+const mixamoToVrmBone = {
+  hips: "hips",
+  spine: "spine",
+  spine1: "chest",
+  spine2: "upperChest",
+  neck: "neck",
+  head: "head",
+  leftshoulder: "leftShoulder",
+  leftarm: "leftUpperArm",
+  leftforearm: "leftLowerArm",
+  lefthand: "leftHand",
+  rightshoulder: "rightShoulder",
+  rightarm: "rightUpperArm",
+  rightforearm: "rightLowerArm",
+  righthand: "rightHand",
+  leftupleg: "leftUpperLeg",
+  leftleg: "leftLowerLeg",
+  leftfoot: "leftFoot",
+  lefttoebase: "leftToes",
+  rightupleg: "rightUpperLeg",
+  rightleg: "rightLowerLeg",
+  rightfoot: "rightFoot",
+  righttoebase: "rightToes",
+  lefthandthumb1: "leftThumbMetacarpal",
+  lefthandthumb2: "leftThumbProximal",
+  lefthandthumb3: "leftThumbDistal",
+  lefthandindex1: "leftIndexProximal",
+  lefthandindex2: "leftIndexIntermediate",
+  lefthandindex3: "leftIndexDistal",
+  lefthandmiddle1: "leftMiddleProximal",
+  lefthandmiddle2: "leftMiddleIntermediate",
+  lefthandmiddle3: "leftMiddleDistal",
+  lefthandring1: "leftRingProximal",
+  lefthandring2: "leftRingIntermediate",
+  lefthandring3: "leftRingDistal",
+  lefthandpinky1: "leftLittleProximal",
+  lefthandpinky2: "leftLittleIntermediate",
+  lefthandpinky3: "leftLittleDistal",
+  righthandthumb1: "rightThumbMetacarpal",
+  righthandthumb2: "rightThumbProximal",
+  righthandthumb3: "rightThumbDistal",
+  righthandindex1: "rightIndexProximal",
+  righthandindex2: "rightIndexIntermediate",
+  righthandindex3: "rightIndexDistal",
+  righthandmiddle1: "rightMiddleProximal",
+  righthandmiddle2: "rightMiddleIntermediate",
+  righthandmiddle3: "rightMiddleDistal",
+  righthandring1: "rightRingProximal",
+  righthandring2: "rightRingIntermediate",
+  righthandring3: "rightRingDistal",
+  righthandpinky1: "rightLittleProximal",
+  righthandpinky2: "rightLittleIntermediate",
+  righthandpinky3: "rightLittleDistal"
+};

@@ -315,6 +315,7 @@ export class GopalRuntime extends EventTarget {
     }
 
     this.stopTtsAudio();
+    this.emit("speech", { text: clean });
     this.emit("mood", { mood: "speaking", caption: clean });
 
     try {

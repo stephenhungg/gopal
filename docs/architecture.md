@@ -58,9 +58,13 @@ The browser interface renders the VRM file at `goblin/5471668261992954414.vrm` t
 - loads the VRM model from `/models/goblin.vrm`
 - frames it in a transparent Three.js canvas
 - puts the model in a simple standing pose
+- loads FBX animations from `/animations/*.fbx`
+- retargets common Mixamo-style FBX bones onto VRM humanoid joints
 - animates idle bobbing
 - opens mouth / expression values while the runtime is speaking
 - reacts to runtime `mood` events
+- plays `spotted` when the vision loop decides a frame is worth speaking about
+- plays `dance` when the model response sounds celebratory or excited
 
 This keeps the goblin view separate from `GopalRuntime`, so a Vision Pro surface can replace either the DOM test UI or the renderer without touching the realtime OpenAI path.
 

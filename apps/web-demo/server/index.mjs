@@ -8,6 +8,7 @@ const root = fileURLToPath(new URL("../../..", import.meta.url));
 const publicDir = join(root, "apps/web-demo/public");
 const nodeModulesDir = join(root, "node_modules");
 const goblinModelPath = join(root, "goblin/5471668261992954414.vrm");
+const animationsDir = join(root, "animations");
 const promptPath = join(root, "packages/prompts/gopal-system.md");
 
 const mime = {
@@ -16,7 +17,8 @@ const mime = {
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".vrm": "model/gltf-binary",
-  ".glb": "model/gltf-binary"
+  ".glb": "model/gltf-binary",
+  ".fbx": "application/octet-stream"
 };
 
 function loadDotEnv() {
@@ -229,6 +231,17 @@ function serveStatic(req, res) {
 
   if (requestPath === "/models/goblin.vrm") {
     serveFile(req, res, goblinModelPath);
+    return;
+  }
+
+  if (requestPath.startsWith("/animations/")) {
+    const resolvedAnimation = normalize(join(root, requestPath));
+    if (!resolvedAnimation.startsWith(animationsDir)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
+    serveFile(req, res, resolvedAnimation);
     return;
   }
 

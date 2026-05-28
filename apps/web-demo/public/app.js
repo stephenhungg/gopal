@@ -20,10 +20,7 @@ const vrmStage = new GopalVrmStage(ui.vrmStage);
 
 runtime.attachVideoElement(ui.camera);
 vrmStage.bindRuntime(runtime);
-vrmStage.load().catch((error) => {
-  console.error(error);
-  log(`vrm failed: ${error.message || error}`);
-});
+bootAvatar();
 
 ui.wake.addEventListener("click", toggleWake);
 
@@ -46,6 +43,11 @@ runtime.addEventListener("caption", (event) => {
 runtime.addEventListener("frame", (event) => {
   const mode = event.detail.spoke ? "spoke" : "context";
   log(`frame ${mode}, change ${event.detail.changeScore.toFixed(1)}`);
+  if (event.detail.spoke) vrmStage.playAnimation("spotted");
+});
+
+runtime.addEventListener("speech", (event) => {
+  if (soundsExcited(event.detail.text)) vrmStage.playAnimation("dance");
 });
 
 runtime.addEventListener("log", (event) => {
@@ -104,4 +106,21 @@ function log(text) {
   item.textContent = text;
   ui.log.prepend(item);
   while (ui.log.children.length > 8) ui.log.lastChild.remove();
+}
+
+async function bootAvatar() {
+  try {
+    await vrmStage.load();
+    await vrmStage.loadAnimations({
+      dance: "/animations/dance.fbx",
+      spotted: "/animations/spotted.fbx"
+    });
+  } catch (error) {
+    console.error(error);
+    log(`avatar failed: ${error.message || error}`);
+  }
+}
+
+function soundsExcited(text) {
+  return /\b(yes|hell yes|nice|perfect|great|love|beautiful|wild|sick|insane|win|won|celebrate|party|dance|hype|let'?s go|haha|ahaha|hehe)\b/i.test(text);
 }

@@ -22,6 +22,7 @@ The priority is functional latency: see the world, react quickly, speak naturall
 - Reusable browser runtime at `apps/web-demo/public/gopal-runtime.js`
 - Real VRM goblin renderer at `apps/web-demo/public/vrm-stage.js`
 - Goblin model served from `goblin/5471668261992954414.vrm`
+- Semantic FBX animations from `animations/`
 - Camera preview from MacBook or Vision Pro Safari
 - Microphone to OpenAI Realtime over WebRTC
 - OpenAI Realtime for listening, vision context, and text responses
@@ -125,6 +126,9 @@ gopal/
       server/
   goblin/
     5471668261992954414.vrm
+  animations/
+    dance.fbx
+    spotted.fbx
   packages/
     prompts/
       gopal-system.md
@@ -150,3 +154,10 @@ gopal/
 5. Improve motion/change detection so ambient speech feels intentional.
 6. Add interruptible speech so Gopal can react immediately to new visual events.
 7. Move the same perception loop into Vision Pro once the web loop feels alive.
+
+## animation triggers
+
+- `dance.fbx`: celebration, excitement, happy moments, hype.
+- `spotted.fbx`: G Opal notices something worth commenting on in the camera.
+
+The renderer retargets common Mixamo-style FBX bone names onto VRM humanoid bones. New animations should be dropped into `animations/`, served as `/animations/name.fbx`, then registered in `vrm-stage.js` or the UI adapter.
