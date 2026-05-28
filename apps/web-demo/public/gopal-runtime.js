@@ -29,6 +29,7 @@ export class GopalRuntime extends EventTarget {
     this.dc = null;
     this.micStream = null;
     this.cameraStream = null;
+    this.remoteAudio = null;
     this.ttsAudio = null;
     this.ttsObjectUrl = null;
     this.frameTimer = null;
@@ -74,7 +75,7 @@ export class GopalRuntime extends EventTarget {
     const response = await fetch(this.sessionEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ safetyId: this.safetyId, voice: this.voice })
+      body: JSON.stringify({ safetyId: this.safetyId })
     });
     const payload = await response.json();
     if (!response.ok) {
@@ -87,11 +88,15 @@ export class GopalRuntime extends EventTarget {
     const pc = new RTCPeerConnection();
     this.pc = pc;
 
+    this.remoteAudio = document.createElement("audio");
+    this.remoteAudio.autoplay = true;
+    pc.ontrack = (event) => {
+      this.remoteAudio.srcObject = event.streams[0];
+      this.emit("audio", { stream: event.streams[0], element: this.remoteAudio });
+    };
+
     for (const track of this.micStream.getAudioTracks()) {
-      pc.addTransceiver(track, {
-        direction: "sendonly",
-        streams: [this.micStream]
-      });
+      pc.addTrack(track, this.micStream);
     }
 
     const dc = pc.createDataChannel("oai-events");
@@ -139,7 +144,7 @@ export class GopalRuntime extends EventTarget {
       case "response.created":
         this.responseText = "";
         this.lastResponseAt = Date.now();
-        this.emit("mood", { mood: "thinking", caption: "thinking" });
+        this.emit("mood", { mood: "speaking", caption: "speaking" });
         break;
       case "response.output_text.delta":
       case "response.output_audio_transcript.delta":
@@ -147,7 +152,8 @@ export class GopalRuntime extends EventTarget {
         this.emit("caption", { text: this.responseText });
         break;
       case "response.done":
-        this.speakText(this.responseText);
+        if (this.responseText.trim()) this.emit("speech", { text: this.responseText.trim() });
+        this.emit("mood", { mood: "listening", caption: "watching" });
         break;
       case "error":
         this.emit("error", { error: event.error || event });
@@ -297,7 +303,7 @@ export class GopalRuntime extends EventTarget {
     this.sendEvent({
       type: "response.create",
       response: {
-        output_modalities: ["text"]
+        output_modalities: ["audio"]
       }
     });
   }

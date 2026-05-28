@@ -41,6 +41,7 @@ loadDotEnv();
 
 const port = Number(process.env.PORT || 3000);
 const model = process.env.OPENAI_REALTIME_MODEL || "gpt-realtime-2";
+const openAiVoice = process.env.OPENAI_REALTIME_VOICE || "cedar";
 const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID || "OTMqA7lryJHXgAnPIQYt";
 const elevenLabsModelId = process.env.ELEVENLABS_MODEL_ID || "eleven_turbo_v2_5";
 const elevenLabsOutputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT || "mp3_44100_128";
@@ -103,7 +104,7 @@ async function createRealtimeSession(req, res) {
         type: "realtime",
         model,
         instructions,
-        output_modalities: ["text"],
+        output_modalities: ["audio"],
         audio: {
           input: {
             noise_reduction: { type: "far_field" },
@@ -113,6 +114,10 @@ async function createRealtimeSession(req, res) {
               create_response: true,
               interrupt_response: true
             }
+          },
+          output: {
+            voice: openAiVoice,
+            speed: 1.06
           }
         }
       }

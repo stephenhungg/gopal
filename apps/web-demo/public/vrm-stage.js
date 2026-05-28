@@ -80,7 +80,7 @@ export class GopalVrmStage {
     const loader = new FBXLoader();
     for (const [name, url] of Object.entries(animationMap)) {
       const fbx = await loader.loadAsync(url);
-      const clip = this.createVrmClip(name, fbx.animations[0]);
+      const clip = this.createVrmClip(name, fbx, fbx.animations[0]);
       const action = this.mixer.clipAction(clip);
       action.loop = name === "dance" ? THREE.LoopRepeat : THREE.LoopOnce;
       action.clampWhenFinished = name !== "dance";
@@ -92,10 +92,19 @@ export class GopalVrmStage {
     });
   }
 
-  createVrmClip(name, sourceClip) {
+  createVrmClip(name, fbx, sourceClip) {
     if (!sourceClip) throw new Error(`missing animation clip for ${name}`);
 
     const tracks = [];
+    const hipsMotion = findFbxBone(fbx, "Hips");
+    const motionHipsHeight = Math.max(Math.abs(hipsMotion?.position.y || 1), 1);
+    const vrmHips = this.vrm.humanoid.getNormalizedBoneNode("hips");
+    const vrmHipsWorld = new THREE.Vector3();
+    const vrmRootWorld = new THREE.Vector3();
+    vrmHips?.getWorldPosition(vrmHipsWorld);
+    this.vrm.scene.getWorldPosition(vrmRootWorld);
+    const hipsScale = Math.max(Math.abs(vrmHipsWorld.y - vrmRootWorld.y), 0.01) / motionHipsHeight;
+
     for (const track of sourceClip.tracks) {
       const parsed = parseTrackName(track.name);
       const humanoidName = mixamoToVrmBone[parsed.bone];
@@ -103,17 +112,20 @@ export class GopalVrmStage {
 
       const node = this.vrm.humanoid.getNormalizedBoneNode(humanoidName);
       if (!node) continue;
+      const fbxBone = findFbxBone(fbx, parsed.rawBone);
 
       if (parsed.property === "quaternion") {
-        tracks.push(new THREE.QuaternionKeyframeTrack(`${node.name}.quaternion`, track.times, track.values));
+        if (!fbxBone) continue;
+        const values = retargetQuaternionTrack(track, fbxBone);
+        tracks.push(new THREE.QuaternionKeyframeTrack(`${node.name}.quaternion`, track.times, values));
       }
 
       if (parsed.property === "position" && humanoidName === "hips") {
         const values = new Float32Array(track.values.length);
         for (let i = 0; i < track.values.length; i += 3) {
-          values[i] = track.values[i] * 0.01;
-          values[i + 1] = track.values[i + 1] * 0.01;
-          values[i + 2] = track.values[i + 2] * 0.01;
+          values[i] = track.values[i] * hipsScale;
+          values[i + 1] = track.values[i + 1] * hipsScale;
+          values[i + 2] = track.values[i + 2] * hipsScale;
         }
         tracks.push(new THREE.VectorKeyframeTrack(`${node.name}.position`, track.times, values));
       }
@@ -242,9 +254,42 @@ function parseTrackName(trackName) {
   const rawBone = dot === -1 ? trackName : trackName.slice(0, dot);
   const property = dot === -1 ? "" : trackName.slice(dot + 1);
   return {
+    rawBone,
     bone: rawBone.replace(/^.*:/, "").replace(/^mixamorig/i, "").replace(/[^a-z0-9]/gi, "").toLowerCase(),
     property
   };
+}
+
+function findFbxBone(fbx, name) {
+  const exact = fbx.getObjectByName(name);
+  if (exact) return exact;
+
+  const normalized = name.replace(/^.*:/, "").replace(/^mixamorig/i, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
+  let found = null;
+  fbx.traverse((node) => {
+    if (found) return;
+    const nodeName = node.name.replace(/^.*:/, "").replace(/^mixamorig/i, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
+    if (nodeName === normalized) found = node;
+  });
+  return found;
+}
+
+function retargetQuaternionTrack(track, fbxBone) {
+  const restRotationInverse = new THREE.Quaternion();
+  const parentRestWorldRotation = new THREE.Quaternion();
+  const key = new THREE.Quaternion();
+  const values = new Float32Array(track.values.length);
+
+  fbxBone.getWorldQuaternion(restRotationInverse).invert();
+  fbxBone.parent?.getWorldQuaternion(parentRestWorldRotation);
+
+  for (let i = 0; i < track.values.length; i += 4) {
+    key.fromArray(track.values, i);
+    key.premultiply(parentRestWorldRotation).multiply(restRotationInverse);
+    key.toArray(values, i);
+  }
+
+  return values;
 }
 
 const mixamoToVrmBone = {
