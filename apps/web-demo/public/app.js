@@ -4,23 +4,17 @@ import { GopalVrmStage } from "./vrm-stage.js";
 const ui = {
   camera: document.querySelector("#camera"),
   vrmStage: document.querySelector("#vrmStage"),
-  start: document.querySelector("#start"),
-  stop: document.querySelector("#stop"),
-  lookNow: document.querySelector("#lookNow"),
-  voice: document.querySelector("#voice"),
+  wake: document.querySelector("#wake"),
   status: document.querySelector("#status"),
   gopal: document.querySelector("#gopal"),
   mood: document.querySelector("#mood"),
   caption: document.querySelector("#caption"),
-  log: document.querySelector("#log"),
-  autoLook: document.querySelector("#autoLook"),
-  ambientTalk: document.querySelector("#ambientTalk"),
-  frameRate: document.querySelector("#frameRate")
+  log: document.querySelector("#log")
 };
 
 const runtime = new GopalRuntime({
-  frameIntervalMs: Number(ui.frameRate.value) * 1000,
-  voice: ui.voice.value
+  frameIntervalMs: 4000,
+  voice: "cedar"
 });
 const vrmStage = new GopalVrmStage(ui.vrmStage);
 
@@ -31,17 +25,7 @@ vrmStage.load().catch((error) => {
   log(`vrm failed: ${error.message || error}`);
 });
 
-ui.start.addEventListener("click", start);
-ui.stop.addEventListener("click", stop);
-ui.lookNow.addEventListener("click", () => runtime.speakAboutCurrentFrame());
-ui.voice.addEventListener("change", () => {
-  if (!runtime.setVoice(ui.voice.value)) {
-    log("voice locks after wake. stop and wake again to switch.");
-  }
-});
-ui.autoLook.addEventListener("change", () => runtime.setAutoLook(ui.autoLook.checked));
-ui.ambientTalk.addEventListener("change", () => runtime.setAmbientTalk(ui.ambientTalk.checked));
-ui.frameRate.addEventListener("input", () => runtime.setFrameInterval(Number(ui.frameRate.value)));
+ui.wake.addEventListener("click", toggleWake);
 
 runtime.addEventListener("camera", (event) => {
   ui.camera.srcObject = event.detail.stream;
@@ -72,31 +56,37 @@ runtime.addEventListener("error", (event) => {
   log(`error: ${event.detail.error?.message || "unknown"}`);
 });
 
+async function toggleWake() {
+  if (runtime.connected) {
+    stop();
+    return;
+  }
+
+  await start();
+}
+
 async function start() {
   setMood("thinking", "opening camera and mic");
-  ui.start.disabled = true;
+  ui.wake.disabled = true;
 
   try {
     await runtime.start();
-    ui.stop.disabled = false;
-    ui.lookNow.disabled = false;
-    ui.voice.disabled = true;
+    ui.wake.disabled = false;
+    ui.wake.textContent = "banish G Opal";
   } catch (error) {
     console.error(error);
     log(`failed: ${error.message || error}`);
     ui.status.textContent = "failed";
     setMood("idle", "runtime failed");
-    ui.start.disabled = false;
+    ui.wake.disabled = false;
   }
 }
 
 function stop() {
   runtime.stop();
   ui.camera.srcObject = null;
-  ui.start.disabled = false;
-  ui.stop.disabled = true;
-  ui.lookNow.disabled = true;
-  ui.voice.disabled = false;
+  ui.wake.disabled = false;
+  ui.wake.textContent = "wake G Opal";
 }
 
 function setMood(mood, caption) {

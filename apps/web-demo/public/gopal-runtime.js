@@ -337,7 +337,7 @@ export class GopalRuntime extends EventTarget {
 }
 
 const defaultPrimePrompt =
-  "You just came online. Greet me directly in one short, conversational line. Do not use third person.";
+  "You just came online. Greet me directly in one short, conversational line. If you say your name, say it like G... Opal with a slight pause. Do not use third person.";
 
 const defaultScenePrompt =
   "Look at this current camera frame and decide if it is worth interrupting me. Speak only if there is something useful, risky, funny, surprising, or clearly changed. Be brief and conversational. Do not use third person. Do not identify real people, sexualize strangers, or insult vulnerable people.";
