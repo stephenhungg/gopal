@@ -117,7 +117,11 @@ This keeps the realtime functionality and the rendered goblin separate, while st
 gopal/
   apps/
     landing-page/
-      .gitkeep
+      app/
+      components/
+      public/
+      scripts/
+      package.json
     visionos/
     web-demo/
       public/
@@ -144,6 +148,16 @@ gopal/
 3. Animated Gopal avatar states
 4. Vision Pro Safari test
 5. Native visionOS shell
+
+## landing page
+
+```bash
+cd apps/landing-page
+bun install
+bun run dev
+```
+
+the landing page is an editable next.js + tailwindcss + gsap port from the clearpath framer reference.
 
 ## functional roadmap
 
