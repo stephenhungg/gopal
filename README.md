@@ -127,6 +127,7 @@ gopal/
   goblin/
     5471668261992954414.vrm
   animations/
+    idle.fbx
     dance.fbx
     spotted.fbx
   packages/
@@ -169,5 +170,6 @@ the landing page is an editable next.js + tailwindcss + gsap port from the clear
 
 - `dance.fbx`: celebration, excitement, happy moments, hype.
 - `spotted.fbx`: G Opal notices something worth commenting on in the camera.
+- `idle.fbx`: default living presence loop. Root translation is ignored so the model stays anchored.
 
 The renderer retargets common Mixamo-style FBX bone names onto VRM humanoid bones. New animations should be dropped into `animations/`, served as `/animations/name.fbx`, then registered in `vrm-stage.js` or the UI adapter.

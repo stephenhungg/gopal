@@ -61,6 +61,7 @@ The browser interface renders the VRM file at `goblin/5471668261992954414.vrm` t
 - animates idle bobbing
 - opens mouth / expression values while the runtime is speaking
 - reacts to runtime `mood` events
+- loops `idle` for default living presence
 - plays `spotted` when the vision loop decides a frame is worth speaking about
 - plays `dance` when the model response sounds celebratory or excited
 

@@ -82,8 +82,9 @@ export class GopalVrmStage {
       const fbx = await loader.loadAsync(url);
       const clip = this.createVrmClip(name, fbx, fbx.animations[0]);
       const action = this.mixer.clipAction(clip);
-      action.loop = name === "dance" ? THREE.LoopRepeat : THREE.LoopOnce;
-      action.clampWhenFinished = name !== "dance";
+      action.loop = name === "idle" || name === "dance" ? THREE.LoopRepeat : THREE.LoopOnce;
+      action.clampWhenFinished = name !== "idle" && name !== "dance";
+      if (name === "idle") action.setEffectiveWeight(0.55);
       this.animationActions.set(name, action);
     }
 
@@ -109,6 +110,8 @@ export class GopalVrmStage {
       const parsed = parseTrackName(track.name);
       const humanoidName = mixamoToVrmBone[parsed.bone];
       if (!humanoidName) continue;
+      if (name === "idle" && !idleBoneAllowlist.has(humanoidName)) continue;
+      if (name === "idle" && parsed.property === "position") continue;
 
       const node = this.vrm.humanoid.getNormalizedBoneNode(humanoidName);
       if (!node) continue;
@@ -145,6 +148,7 @@ export class GopalVrmStage {
     if (previous && previous !== action) previous.fadeOut(fade);
 
     action.reset().fadeIn(fade).play();
+    if (name === "idle") action.setEffectiveWeight(options.weight ?? 0.55);
     this.currentAction = action;
 
     window.clearTimeout(this.animationReturnTimer);
@@ -152,6 +156,7 @@ export class GopalVrmStage {
       this.animationReturnTimer = window.setTimeout(() => {
         action.fadeOut(0.25);
         if (this.currentAction === action) this.currentAction = null;
+        this.playAnimation("idle", { fade: 0.25 });
       }, options.durationMs || 4200);
     }
 
@@ -346,3 +351,5 @@ const mixamoToVrmBone = {
   righthandpinky2: "rightLittleIntermediate",
   righthandpinky3: "rightLittleDistal"
 };
+
+const idleBoneAllowlist = new Set(["hips", "spine", "chest", "upperChest", "neck", "head"]);

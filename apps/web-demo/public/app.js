@@ -112,9 +112,11 @@ async function bootAvatar() {
   try {
     await vrmStage.load();
     await vrmStage.loadAnimations({
+      idle: "/animations/idle.fbx",
       dance: "/animations/dance.fbx",
       spotted: "/animations/spotted.fbx"
     });
+    vrmStage.playAnimation("idle", { fade: 0.1 });
   } catch (error) {
     console.error(error);
     log(`avatar failed: ${error.message || error}`);
