@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PageTransition } from "@/components/PageTransition";
 
 export const metadata: Metadata = {
-  title: "ClearPath",
-  description: "A therapy and coaching landing page ported from a Framer reference.",
+  title: "gopal",
+  description:
+    "angel loads normally, then gets corrupted into gopal: a realtime goblin voice and vision companion.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-paper text-ink-near antialiased">
+        <PageTransition>{children}</PageTransition>
+      </body>
     </html>
   );
 }
